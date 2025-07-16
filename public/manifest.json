@@ -1,0 +1,23 @@
+{
+  "name": "SmartNotes - Your Intelligent Note-Taking Companion",
+  "short_name": "SmartNotes",
+  "description": "Start your journey to smarter note-taking with SmartNotes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a1a1a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
