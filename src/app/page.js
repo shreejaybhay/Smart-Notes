@@ -343,7 +343,7 @@ export default function SmartNotesLanding() {
                 <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-6 border border-border/30">
                   <div className="flex items-center gap-2 mb-3">
                     <Search className="h-4 w-4 text-primary" />
-                    <span className="text-sm text-muted-foreground">"productivity tips"</span>
+                    <span className="text-sm text-muted-foreground">&quot;productivity tips&quot;</span>
                   </div>
                   <div className="space-y-2 text-xs text-muted-foreground">
                     <div className="flex justify-between">
@@ -403,7 +403,7 @@ export default function SmartNotesLanding() {
                     <span>Smart suggestion</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    "This relates to your note about project planning from last week"
+                    &quot;This relates to your note about project planning from last week&quot;
                   </div>
                 </div>
               </CardContent>
