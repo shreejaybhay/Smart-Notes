@@ -4,7 +4,7 @@ import {
   useEditor,
   EditorContent,
   BubbleMenu,
-  FloatingMenu,
+  FloatingMenu
 } from "@tiptap/react";
 import "../styles/tiptap-editor.css";
 import { useState, useEffect, useRef } from "react";
@@ -63,7 +63,7 @@ import {
   Palette,
   MoreHorizontal,
   ChevronDown,
-  Plus,
+  Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -72,14 +72,14 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
 } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 
@@ -95,45 +95,45 @@ const TiptapMenuBar = ({ editor }) => {
       title: "Undo",
       action: () => editor.chain().focus().undo().run(),
       isActive: () => false,
-      isDisabled: () => !editor.can().undo(),
+      isDisabled: () => !editor.can().undo()
     },
     {
       icon: Redo,
       title: "Redo",
       action: () => editor.chain().focus().redo().run(),
       isActive: () => false,
-      isDisabled: () => !editor.can().redo(),
+      isDisabled: () => !editor.can().redo()
     },
     { type: "divider" },
     {
       icon: Bold,
       title: "Bold",
       action: () => editor.chain().focus().toggleBold().run(),
-      isActive: () => editor.isActive("bold"),
+      isActive: () => editor.isActive("bold")
     },
     {
       icon: Italic,
       title: "Italic",
       action: () => editor.chain().focus().toggleItalic().run(),
-      isActive: () => editor.isActive("italic"),
+      isActive: () => editor.isActive("italic")
     },
     {
       icon: UnderlineIcon,
       title: "Underline",
       action: () => editor.chain().focus().toggleUnderline().run(),
-      isActive: () => editor.isActive("underline"),
+      isActive: () => editor.isActive("underline")
     },
     {
       icon: Strikethrough,
       title: "Strikethrough",
       action: () => editor.chain().focus().toggleStrike().run(),
-      isActive: () => editor.isActive("strike"),
+      isActive: () => editor.isActive("strike")
     },
     {
       icon: Code,
       title: "Code",
       action: () => editor.chain().focus().toggleCode().run(),
-      isActive: () => editor.isActive("code"),
+      isActive: () => editor.isActive("code")
     },
     { type: "divider" },
     {
@@ -145,52 +145,52 @@ const TiptapMenuBar = ({ editor }) => {
           editor.chain().focus().setLink({ href: url }).run();
         }
       },
-      isActive: () => editor.isActive("link"),
+      isActive: () => editor.isActive("link")
     },
     { type: "divider" },
     {
       icon: SubscriptIcon,
       title: "Subscript",
       action: () => editor.chain().focus().toggleSubscript().run(),
-      isActive: () => editor.isActive("subscript"),
+      isActive: () => editor.isActive("subscript")
     },
     {
       icon: SuperscriptIcon,
       title: "Superscript",
       action: () => editor.chain().focus().toggleSuperscript().run(),
-      isActive: () => editor.isActive("superscript"),
+      isActive: () => editor.isActive("superscript")
     },
     { type: "divider" },
     {
       icon: AlignLeft,
       title: "Align Left",
       action: () => editor.chain().focus().setTextAlign("left").run(),
-      isActive: () => editor.isActive({ textAlign: "left" }),
+      isActive: () => editor.isActive({ textAlign: "left" })
     },
     {
       icon: AlignCenter,
       title: "Align Center",
       action: () => editor.chain().focus().setTextAlign("center").run(),
-      isActive: () => editor.isActive({ textAlign: "center" }),
+      isActive: () => editor.isActive({ textAlign: "center" })
     },
     {
       icon: AlignRight,
       title: "Align Right",
       action: () => editor.chain().focus().setTextAlign("right").run(),
-      isActive: () => editor.isActive({ textAlign: "right" }),
+      isActive: () => editor.isActive({ textAlign: "right" })
     },
     {
       icon: AlignJustify,
       title: "Justify",
       action: () => editor.chain().focus().setTextAlign("justify").run(),
-      isActive: () => editor.isActive({ textAlign: "justify" }),
+      isActive: () => editor.isActive({ textAlign: "justify" })
     },
     { type: "divider" },
     {
       icon: Plus,
       title: "Add",
       action: () => {},
-      isActive: () => false,
+      isActive: () => false
     },
   ];
 
@@ -402,14 +402,14 @@ const TiptapMenuBar = ({ editor }) => {
       title: "Undo",
       action: () => editor.chain().focus().undo().run(),
       isActive: () => false,
-      isDisabled: () => !editor.can().undo(),
+      isDisabled: () => !editor.can().undo()
     },
     {
       icon: Redo,
       title: "Redo",
       action: () => editor.chain().focus().redo().run(),
       isActive: () => false,
-      isDisabled: () => !editor.can().redo(),
+      isDisabled: () => !editor.can().redo()
     },
     { type: "divider" },
 
@@ -418,37 +418,37 @@ const TiptapMenuBar = ({ editor }) => {
       icon: Bold,
       title: "Bold",
       action: () => editor.chain().focus().toggleBold().run(),
-      isActive: () => editor.isActive("bold"),
+      isActive: () => editor.isActive("bold")
     },
     {
       icon: Italic,
       title: "Italic",
       action: () => editor.chain().focus().toggleItalic().run(),
-      isActive: () => editor.isActive("italic"),
+      isActive: () => editor.isActive("italic")
     },
     {
       icon: UnderlineIcon,
       title: "Underline",
       action: () => editor.chain().focus().toggleUnderline().run(),
-      isActive: () => editor.isActive("underline"),
+      isActive: () => editor.isActive("underline")
     },
     {
       icon: Strikethrough,
       title: "Strikethrough",
       action: () => editor.chain().focus().toggleStrike().run(),
-      isActive: () => editor.isActive("strike"),
+      isActive: () => editor.isActive("strike")
     },
     {
       icon: Code,
       title: "Code",
       action: () => editor.chain().focus().toggleCode().run(),
-      isActive: () => editor.isActive("code"),
+      isActive: () => editor.isActive("code")
     },
     {
       icon: Highlighter,
       title: "Highlight",
       action: () => editor.chain().focus().toggleHighlight().run(),
-      isActive: () => editor.isActive("highlight"),
+      isActive: () => editor.isActive("highlight")
     },
     { type: "divider" },
 
@@ -457,13 +457,13 @@ const TiptapMenuBar = ({ editor }) => {
       icon: SubscriptIcon,
       title: "Subscript",
       action: () => editor.chain().focus().toggleSubscript().run(),
-      isActive: () => editor.isActive("subscript"),
+      isActive: () => editor.isActive("subscript")
     },
     {
       icon: SuperscriptIcon,
       title: "Superscript",
       action: () => editor.chain().focus().toggleSuperscript().run(),
-      isActive: () => editor.isActive("superscript"),
+      isActive: () => editor.isActive("superscript")
     },
     { type: "divider" },
 
@@ -472,19 +472,19 @@ const TiptapMenuBar = ({ editor }) => {
       icon: List,
       title: "Bullet List",
       action: () => editor.chain().focus().toggleBulletList().run(),
-      isActive: () => editor.isActive("bulletList"),
+      isActive: () => editor.isActive("bulletList")
     },
     {
       icon: ListOrdered,
       title: "Ordered List",
       action: () => editor.chain().focus().toggleOrderedList().run(),
-      isActive: () => editor.isActive("orderedList"),
+      isActive: () => editor.isActive("orderedList")
     },
     {
       icon: CheckSquare,
       title: "Task List",
       action: () => editor.chain().focus().toggleTaskList().run(),
-      isActive: () => editor.isActive("taskList"),
+      isActive: () => editor.isActive("taskList")
     },
     { type: "divider" },
 
@@ -493,25 +493,25 @@ const TiptapMenuBar = ({ editor }) => {
       icon: AlignLeft,
       title: "Align Left",
       action: () => editor.chain().focus().setTextAlign("left").run(),
-      isActive: () => editor.isActive({ textAlign: "left" }),
+      isActive: () => editor.isActive({ textAlign: "left" })
     },
     {
       icon: AlignCenter,
       title: "Align Center",
       action: () => editor.chain().focus().setTextAlign("center").run(),
-      isActive: () => editor.isActive({ textAlign: "center" }),
+      isActive: () => editor.isActive({ textAlign: "center" })
     },
     {
       icon: AlignRight,
       title: "Align Right",
       action: () => editor.chain().focus().setTextAlign("right").run(),
-      isActive: () => editor.isActive({ textAlign: "right" }),
+      isActive: () => editor.isActive({ textAlign: "right" })
     },
     {
       icon: AlignJustify,
       title: "Justify",
       action: () => editor.chain().focus().setTextAlign("justify").run(),
-      isActive: () => editor.isActive({ textAlign: "justify" }),
+      isActive: () => editor.isActive({ textAlign: "justify" })
     },
     { type: "divider" },
 
@@ -520,13 +520,13 @@ const TiptapMenuBar = ({ editor }) => {
       icon: Quote,
       title: "Blockquote",
       action: () => editor.chain().focus().toggleBlockquote().run(),
-      isActive: () => editor.isActive("blockquote"),
+      isActive: () => editor.isActive("blockquote")
     },
     {
       icon: Minus,
       title: "Horizontal Rule",
       action: () => editor.chain().focus().setHorizontalRule().run(),
-      isActive: () => false,
+      isActive: () => false
     },
   ];
 
@@ -700,7 +700,7 @@ const TiptapMenuBar = ({ editor }) => {
 export function AdvancedRichTextEditor({
   content,
   onChange,
-  placeholder = "Start writing your note...",
+  placeholder = "Start writing your note..."
 }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -713,45 +713,45 @@ export function AdvancedRichTextEditor({
       StarterKit.configure({
         bulletList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: false
         },
         orderedList: {
           keepMarks: true,
-          keepAttributes: false,
-        },
+          keepAttributes: false
+        }
       }),
       Underline,
       Subscript,
       Superscript,
       Highlight.configure({
-        multicolor: true,
+        multicolor: true
       }),
       TextAlign.configure({
-        types: ["heading", "paragraph"],
+        types: ["heading", "paragraph"]
       }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-blue-500 underline cursor-pointer",
-        },
+          class: "text-blue-500 underline cursor-pointer"
+        }
       }),
       Image.configure({
         HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg",
-        },
+          class: "max-w-full h-auto rounded-lg"
+        }
       }),
       Table.configure({
-        resizable: true,
+        resizable: true
       }),
       TableRow,
       TableHeader,
       TableCell,
       TaskList,
       TaskItem.configure({
-        nested: true,
+        nested: true
       }),
       Placeholder.configure({
-        placeholder,
+        placeholder
       }),
       Typography,
       TextStyle,
@@ -762,7 +762,7 @@ export function AdvancedRichTextEditor({
       Gapcursor,
       Focus.configure({
         className: "has-focus",
-        mode: "all",
+        mode: "all"
       }),
       CharacterCount,
     ],
@@ -771,12 +771,12 @@ export function AdvancedRichTextEditor({
       attributes: {
         class:
           "prose prose-neutral dark:prose-invert max-w-none focus:outline-none min-h-[600px] px-8 py-8 text-base leading-relaxed",
-        spellcheck: "false",
-      },
+        spellcheck: "false"
+      }
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
-    },
+    }
   });
 
   if (!isMounted) {

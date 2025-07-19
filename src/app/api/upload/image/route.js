@@ -52,7 +52,7 @@ export async function POST(request) {
     // Upload to ImgBB API
     const uploadResponse = await fetch('https://api.imgbb.com/1/upload', {
       method: 'POST',
-      body: imgbbFormData,
+      body: imgbbFormData
     });
 
     if (!uploadResponse.ok) {

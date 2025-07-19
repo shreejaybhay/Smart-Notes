@@ -99,8 +99,8 @@ export async function PATCH(request, { params }) {
       note: {
         id: note._id,
         title: note.title,
-        folder: note.folder,
-      },
+        folder: note.folder
+      }
     });
 
   } catch (error) {

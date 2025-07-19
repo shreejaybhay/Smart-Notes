@@ -9,7 +9,7 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
+  Sparkles
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,13 +20,13 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
+  useSidebar
 } from "@/components/ui/sidebar";
 
 export function NavUser({ user }) {
@@ -40,7 +40,7 @@ export function NavUser({ user }) {
       // Call NextAuth signOut function
       await signOut({
         callbackUrl: "/login",
-        redirect: false,
+        redirect: false
       });
 
       toast.dismiss();

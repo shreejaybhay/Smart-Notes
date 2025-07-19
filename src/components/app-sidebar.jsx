@@ -22,7 +22,7 @@ import {
   Trash,
   Users,
   Copy,
-  Settings,
+  Settings
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -39,14 +39,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
+  useSidebar
 } from "@/components/ui/sidebar";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
-  ContextMenuTrigger,
+  ContextMenuTrigger
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import {
@@ -55,7 +55,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -67,8 +67,10 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
 } from "@/components/ui/tooltip";
+import { apiFetch } from "@/lib/api";
+
 
 export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
   const { data: session, status } = useSession();
@@ -101,11 +103,11 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
 
     try {
       setIsLoadingNotes(true);
-      const response = await fetch(`/api/notes?limit=5&t=${Date.now()}`, {
+      const response = await apiFetch(`/api/notes?limit=5&t=${Date.now()}`, {
         cache: "no-store",
         headers: {
-          "Cache-Control": "no-cache",
-        },
+          "Cache-Control": "no-cache"
+        }
       });
 
       if (!response.ok) {
@@ -120,7 +122,7 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
         title: note.title || "Untitled",
         url: `/dashboard/notes/${note._id}`,
         createdAt: formatRelativeTime(new Date(note.updatedAt)),
-        starred: note.starred || false,
+        starred: note.starred || false
       }));
 
       setRecentNotes(transformedNotes);
@@ -163,7 +165,7 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
 
     try {
       setIsLoadingFolders(true);
-      const response = await fetch("/api/folders");
+      const response = await apiFetch("/api/folders");
 
       if (!response.ok) {
         throw new Error("Failed to fetch folders");
@@ -183,8 +185,8 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
           title: note.title || "Untitled",
           url: note.url || `/dashboard/notes/${note.id}`,
           starred: note.starred || false,
-          updatedAt: note.updatedAt,
-        })),
+          updatedAt: note.updatedAt
+        }))
       }));
 
       setFolders(transformedFolders);
@@ -338,8 +340,8 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
 
     try {
       // Call API to delete folder
-      const response = await fetch(`/api/folders/${folderToDelete.id}`, {
-        method: "DELETE",
+      const response = await apiFetch(`/api/folders/${folderToDelete.id}`, {
+        method: "DELETE"
       });
 
       if (!response.ok) {
@@ -378,19 +380,16 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
           ...folder,
           notes: folder.notes.map((note) =>
             note.id === noteId ? { ...note, starred } : note
-          ),
+          )
         }))
       );
 
       // Make API call in background
-      const response = await fetch(`/api/notes/${noteId}`, {
+      const response = await apiFetch(`/api/notes/${noteId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          starred: starred,
-        }),
+          starred: starred
+        })
       });
 
       if (!response.ok) {
@@ -403,7 +402,7 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
       // Dispatch custom event for immediate updates in same tab
       window.dispatchEvent(
         new CustomEvent("noteStarredChanged", {
-          detail: { noteId, starred },
+          detail: { noteId, starred }
         })
       );
     } catch (error) {
@@ -418,7 +417,7 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
   const handleDuplicateNote = async (noteId) => {
     try {
       // Get the original note
-      const response = await fetch(`/api/notes/${noteId}`);
+      const response = await apiFetch(`/api/notes/${noteId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch note");
       }
@@ -426,16 +425,13 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
       const originalNote = await response.json();
 
       // Create duplicate
-      const duplicateResponse = await fetch("/api/notes", {
+      const duplicateResponse = await apiFetch("/api/notes", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           title: `${originalNote.note.title} (Copy)`,
           content: originalNote.note.content,
-          folder: originalNote.note.folder,
-        }),
+          folder: originalNote.note.folder
+        })
       });
 
       if (!duplicateResponse.ok) {
@@ -457,7 +453,7 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
     setNoteToMove({
       id: noteId,
       title: noteTitle,
-      currentFolder: note?.folder,
+      currentFolder: note?.folder
     });
     setSelectedFolder("");
     setFolderSearchQuery("");
@@ -474,14 +470,11 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
 
       // If creating a new folder, create it first
       if (selectedFolder === "new-folder" && newFolderName.trim()) {
-        const createResponse = await fetch("/api/folders", {
+        const createResponse = await apiFetch("/api/folders", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
-            name: newFolderName.trim(),
-          }),
+            name: newFolderName.trim()
+          })
         });
 
         if (!createResponse.ok) {
@@ -492,14 +485,11 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
         targetFolder = newFolderName.trim();
       }
 
-      const response = await fetch(`/api/notes/${noteToMove.id}`, {
+      const response = await apiFetch(`/api/notes/${noteToMove.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          folder: targetFolder,
-        }),
+          folder: targetFolder
+        })
       });
 
       if (!response.ok) {
@@ -552,14 +542,11 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
     }
 
     try {
-      const response = await fetch(`/api/notes/${noteToRename.id}`, {
+      const response = await apiFetch(`/api/notes/${noteToRename.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          title: newNoteName.trim(),
-        }),
+          title: newNoteName.trim()
+        })
       });
 
       if (!response.ok) {
@@ -596,8 +583,8 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
     if (!noteToDelete) return;
 
     try {
-      const response = await fetch(`/api/notes/${noteToDelete.id}`, {
-        method: "DELETE",
+      const response = await apiFetch(`/api/notes/${noteToDelete.id}`, {
+        method: "DELETE"
       });
 
       if (!response.ok) {
@@ -634,16 +621,13 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
       const folderName = folder ? folder.name : null;
 
       // Create a new note with the folder assigned
-      const response = await fetch("/api/notes", {
+      const response = await apiFetch("/api/notes", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           title: "Untitled Note",
           content: "",
           folder: folderName, // Assign to the selected folder
-        }),
+        })
       });
 
       if (!response.ok) {
@@ -668,14 +652,11 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
     if (isCreatingFolder) {
       try {
         // Create new folder via API
-        const response = await fetch("/api/folders", {
+        const response = await apiFetch("/api/folders", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
-            name: folderName.trim(),
-          }),
+            name: folderName.trim()
+          })
         });
 
         if (!response.ok) {
@@ -696,15 +677,12 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
     } else if (isCreatingSubFolder) {
       try {
         // Create new subfolder via API
-        const response = await fetch("/api/folders", {
+        const response = await apiFetch("/api/folders", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
             name: folderName.trim(),
             parentFolder: isCreatingSubFolder, // Parent folder ID
-          }),
+          })
         });
 
         if (!response.ok) {
@@ -723,14 +701,11 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
     } else if (editingFolder) {
       try {
         // Rename existing folder via API
-        const response = await fetch(`/api/folders/${editingFolder}`, {
+        const response = await apiFetch(`/api/folders/${editingFolder}`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
-            name: folderName.trim(),
-          }),
+            name: folderName.trim()
+          })
         });
 
         if (!response.ok) {
@@ -773,8 +748,7 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
           // Editing mode
           <form
             onSubmit={handleFolderNameSubmit}
-            className="px-2 py-1 group-data-[collapsible=icon]:px-2"
-            className="w-full"
+            className="px-2 py-1 group-data-[collapsible=icon]:px-2 w-full"
           >
             <Input
               value={folderName}
@@ -920,7 +894,7 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
                         setNoteToMove({
                           id: note.id,
                           title: note.title,
-                          currentFolder: folder.name,
+                          currentFolder: folder.name
                         });
                         setMoveFolderDialogOpen(true);
                       }}
@@ -960,7 +934,7 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
           ? `${session.user.firstName} ${session.user.lastName}`
           : session?.user?.name || "User",
       email: session?.user?.email || "user@example.com",
-      avatar: session?.user?.image || "/avatars/default.jpg",
+      avatar: session?.user?.image || "/avatars/default.jpg"
     },
     teams: [
       {
@@ -968,30 +942,30 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
         name: "SmartNotes",
         logo: Brain,
         plan: "Personal",
-        isPersonal: true,
+        isPersonal: true
       },
     ], // Personal workspace + teams from API
     navMain: [
       {
         title: "New Note",
         url: "/dashboard",
-        icon: Plus,
+        icon: Plus
       },
       {
         title: "Search Notes",
         url: "#",
         icon: Search,
-        isSearchDialog: true,
+        isSearchDialog: true
       },
       {
         title: "All Notes",
         url: "/dashboard/notes",
-        icon: FileText,
+        icon: FileText
       },
       {
         title: "Shared Notes",
         url: "/dashboard/shared",
-        icon: Users,
+        icon: Users
       },
     ],
     recentNotes: recentNotes,
@@ -1000,14 +974,14 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
       {
         name: "Starred",
         url: "/dashboard/notes/starred",
-        icon: Star,
+        icon: Star
       },
       {
         name: "Trash",
         url: "/dashboard/notes/trash",
-        icon: Trash2,
+        icon: Trash2
       },
-    ],
+    ]
   };
 
   return (

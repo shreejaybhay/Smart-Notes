@@ -8,7 +8,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,7 +34,7 @@ import {
   MoreVertical,
   X,
   FolderOpen,
-  ChevronRight,
+  ChevronRight
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -44,9 +44,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import TeamSettings from "@/components/team-settings";
+import { apiFetch } from "@/lib/api";
 
 export default function TeamDashboard() {
   const params = useParams();
@@ -126,7 +127,7 @@ export default function TeamDashboard() {
       if (process.env.NODE_ENV === "development") {
         console.log("Fetching team data for ID:", teamId);
       }
-      const response = await fetch(`/api/teams/${teamId}`);
+      const response = await apiFetch(`/api/teams/${teamId}`);
 
       // Only log in development
       if (process.env.NODE_ENV === "development") {
@@ -176,7 +177,7 @@ export default function TeamDashboard() {
       if (process.env.NODE_ENV === "development") {
         console.log("Fetching team folders for team ID:", teamId);
       }
-      const response = await fetch(`/api/teams/${teamId}/folders`);
+      const response = await apiFetch(`/api/teams/${teamId}/folders`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -256,7 +257,7 @@ export default function TeamDashboard() {
   const fetchActivities = async () => {
     try {
       setIsLoadingActivities(true);
-      const response = await fetch(`/api/teams/${teamId}/activities`);
+      const response = await apiFetch(`/api/teams/${teamId}/activities`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch activities");
@@ -282,16 +283,13 @@ export default function TeamDashboard() {
         console.log("Logging activity:", { type, description, metadata });
       }
 
-      const response = await fetch(`/api/teams/${teamId}/activities`, {
+      const response = await apiFetch(`/api/teams/${teamId}/activities`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           type,
           description,
-          metadata,
-        }),
+          metadata
+        })
       });
 
       // Only log in development
@@ -324,16 +322,13 @@ export default function TeamDashboard() {
 
   const handleCreateTeamNote = async () => {
     try {
-      const response = await fetch(`/api/teams/${teamId}/notes/create`, {
+      const response = await apiFetch(`/api/teams/${teamId}/notes/create`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           title: "Untitled Team Note",
           content: "",
           // Don't auto-assign folder - let users organize notes manually
-        }),
+        })
       });
 
       if (!response.ok) {
@@ -347,7 +342,7 @@ export default function TeamDashboard() {
       // Log activity
       await logActivity("note_created", "Created a new team note", {
         noteTitle: data.note.title,
-        noteId: data.note.id,
+        noteId: data.note.id
       });
 
       // Refresh team notes and folders
@@ -369,14 +364,11 @@ export default function TeamDashboard() {
     }
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/folders`, {
+      const response = await apiFetch(`/api/teams/${teamId}/folders`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          name: newFolderName.trim(),
-        }),
+          name: newFolderName.trim()
+        })
       });
 
       if (!response.ok) {
@@ -405,14 +397,11 @@ export default function TeamDashboard() {
 
   const handleMoveNoteToFolder = async (noteId, folderName) => {
     try {
-      const response = await fetch(`/api/teams/${teamId}/notes/${noteId}`, {
+      const response = await apiFetch(`/api/teams/${teamId}/notes/${noteId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          folder: folderName === "unfiled" ? null : folderName,
-        }),
+          folder: folderName === "unfiled" ? null : folderName
+        })
       });
 
       if (!response.ok) {
@@ -611,7 +600,7 @@ export default function TeamDashboard() {
                     "en-US",
                     {
                       month: "short",
-                      day: "numeric",
+                      day: "numeric"
                     }
                   )
                   : "None"}
@@ -911,7 +900,7 @@ export default function TeamDashboard() {
                             {
                               month: "short",
                               day: "numeric",
-                              year: "numeric",
+                              year: "numeric"
                             }
                           )
                           : "Recently"}
@@ -1032,7 +1021,7 @@ export default function TeamDashboard() {
                           year: "numeric",
                           hour: "numeric",
                           minute: "2-digit",
-                          hour12: true,
+                          hour12: true
                         }
                       )}
                     </p>

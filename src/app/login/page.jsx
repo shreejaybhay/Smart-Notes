@@ -52,13 +52,13 @@ function LoginPageContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
+    password: ""
   });
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState({
     google: false,
-    github: false,
+    github: false
   });
 
   // Redirect authenticated users to dashboard
@@ -78,7 +78,7 @@ function LoginPageContent() {
     try {
       const result = await signIn(provider, {
         callbackUrl: "/dashboard",
-        redirect: false,
+        redirect: false
       });
 
       if (result?.error) {
@@ -102,7 +102,7 @@ function LoginPageContent() {
       const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        redirect: false
       });
 
       if (result?.error) {

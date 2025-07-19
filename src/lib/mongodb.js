@@ -24,7 +24,7 @@ async function connectDB() {
 
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,
+      bufferCommands: false
     };
 
     cached.promise = mongoose.connect(MONGODB_URL, opts).then((mongoose) => {

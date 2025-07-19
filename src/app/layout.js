@@ -6,12 +6,12 @@ import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin"]
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin"]
 });
 
 export const metadata = {
@@ -24,9 +24,9 @@ export const metadata = {
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
     ],
     shortcut: '/MetaDataLogo.svg',
-    apple: '/icon-192.png',
+    apple: '/icon-192.png'
   },
-  manifest: '/manifest.json',
+  manifest: '/manifest.json'
 };
 
 export default function RootLayout({ children }) {

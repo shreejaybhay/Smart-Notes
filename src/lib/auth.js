@@ -211,7 +211,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: '/login',
     signUp: '/signup',
-    error: '/login',
+    error: '/login'
   },
   events: {
     async signIn() {
@@ -220,5 +220,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signOut() {
       // User signed out successfully
     }
-  },
+  }
 });

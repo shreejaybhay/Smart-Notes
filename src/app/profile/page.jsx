@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Brain, Camera, User, Mail, ArrowLeft, Upload, X } from "lucide-react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
@@ -20,7 +21,7 @@ export default function ProfilePage() {
     firstName: "",
     lastName: "",
     email: "",
-    image: "",
+    image: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -38,14 +39,14 @@ export default function ProfilePage() {
     const loadUserData = async () => {
       if (session?.user) {
         try {
-          const response = await fetch("/api/user/profile");
+          const response = await apiFetch("/api/user/profile");
           if (response.ok) {
             const data = await response.json();
             setFormData({
               firstName: data.user.firstName || "",
               lastName: data.user.lastName || "",
               email: data.user.email || "",
-              image: data.user.image || "",
+              image: data.user.image || ""
             });
             setPreviewImage(data.user.image);
           }
@@ -72,9 +73,9 @@ export default function ProfilePage() {
       const uploadFormData = new FormData();
       uploadFormData.append("image", file);
 
-      const response = await fetch("/api/upload/image", {
+      const response = await apiFetch("/api/upload/image", {
         method: "POST",
-        body: uploadFormData,
+        body: uploadFormData
       });
 
       const data = await response.json();
@@ -85,7 +86,7 @@ export default function ProfilePage() {
 
       setFormData((prev) => ({
         ...prev,
-        image: data.imageUrl,
+        image: data.imageUrl
       }));
       setPreviewImage(data.imageUrl);
       toast.success("Image uploaded successfully!");
@@ -116,16 +117,13 @@ export default function ProfilePage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/user/profile", {
+      const response = await apiFetch("/api/user/profile", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
-          image: formData.image,
-        }),
+          image: formData.image
+        })
       });
 
       const data = await response.json();
@@ -140,8 +138,8 @@ export default function ProfilePage() {
         user: {
           ...session.user,
           name: data.user.fullName,
-          image: data.user.image,
-        },
+          image: data.user.image
+        }
       });
 
       toast.success("Profile updated successfully!");

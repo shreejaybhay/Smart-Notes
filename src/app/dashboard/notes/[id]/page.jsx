@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { TiptapEditor } from "@/components/tiptap-editor";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { apiFetch } from "@/lib/api";
 
 // Component to handle search params with Suspense
 function SearchParamsProvider({ children }) {
@@ -22,7 +23,7 @@ function NotePageContent({ teamId }) {
   const [note, setNote] = useState({
     title: "",
     content: "",
-    _id: null,
+    _id: null
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -38,7 +39,7 @@ function NotePageContent({ teamId }) {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/notes/${noteId}`);
+      const response = await apiFetch(`/api/notes/${noteId}`);
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -56,7 +57,7 @@ function NotePageContent({ teamId }) {
 
       // Check user permissions for this note
       try {
-        const permissionResponse = await fetch(`/api/notes/${noteId}/permissions`);
+        const permissionResponse = await apiFetch(`/api/notes/${noteId}/permissions`);
         if (permissionResponse.ok) {
           const permissionData = await permissionResponse.json();
           setUserRole(permissionData.role);
@@ -74,7 +75,7 @@ function NotePageContent({ teamId }) {
           console.log("User permissions:", permissionData);
         } else {
           // Fallback: check if user owns the note
-          const session = await fetch('/api/auth/session').then(res => res.json());
+          const session = await apiFetch('/api/auth/session').then(res => res.json());
           const isOwner = data.note.userId === session?.user?.id;
           setCanEdit(isOwner);
           setUserRole(isOwner ? 'owner' : 'viewer');
@@ -89,7 +90,7 @@ function NotePageContent({ teamId }) {
       // If it's a team note, also get team permissions
       if (data.note.isTeamNote && teamId) {
         try {
-          const teamResponse = await fetch(`/api/teams/${teamId}`);
+          const teamResponse = await apiFetch(`/api/teams/${teamId}`);
           if (teamResponse.ok) {
             const teamData = await teamResponse.json();
             const currentUser = teamData.team.currentUser;
@@ -136,13 +137,10 @@ function NotePageContent({ teamId }) {
 
         const response = await fetch(url, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
             title: updatedNote.title,
-            content: updatedNote.content,
-          }),
+            content: updatedNote.content
+          })
         });
 
         if (!response.ok) {
@@ -157,11 +155,11 @@ function NotePageContent({ teamId }) {
         // Show success indication with activity info for team notes
         if (note.isTeamNote && isManualSave) {
           toast.success("Note saved & team activity logged", {
-            duration: 2000,
+            duration: 2000
           });
         } else {
           toast.success("Note saved", {
-            duration: 1000,
+            duration: 1000
           });
         }
       } catch (error) {
@@ -317,7 +315,7 @@ function NotePageContent({ teamId }) {
             dangerouslySetInnerHTML={{
               __html:
                 note.content ||
-                '<p class="text-muted-foreground">This note is empty.</p>',
+                '<p class="text-muted-foreground">This note is empty.</p>'
             }}
           />
 
@@ -444,7 +442,7 @@ function NotePageContent({ teamId }) {
               {note.content ? (
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: note.content,
+                    __html: note.content
                   }}
                 />
               ) : (

@@ -8,14 +8,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogFooter
 } from "@/components/ui/dialog";
 import {
   Folder,
@@ -26,9 +26,10 @@ import {
   MoreVertical,
   Edit2,
   Trash2,
-  User,
+  User
 } from "lucide-react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 export default function AllTeamFoldersPage() {
   const params = useParams();
@@ -51,8 +52,8 @@ export default function AllTeamFoldersPage() {
     const fetchTeamData = async () => {
       try {
         const [teamRes, foldersRes] = await Promise.all([
-          fetch(`/api/teams/${teamId}`),
-          fetch(`/api/teams/${teamId}/folders`),
+          apiFetch(`/api/teams/${teamId}`),
+          apiFetch(`/api/teams/${teamId}/folders`),
         ]);
 
         if (teamRes.ok) {
@@ -83,16 +84,13 @@ export default function AllTeamFoldersPage() {
     }
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/folders`, {
+      const response = await apiFetch(`/api/teams/${teamId}/folders`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           name: createFolderName.trim(),
           description: "",
-          color: "primary",
-        }),
+          color: "primary"
+        })
       });
 
       if (response.ok) {
@@ -118,16 +116,12 @@ export default function AllTeamFoldersPage() {
     }
 
     try {
-      const response = await fetch(
-        `/api/teams/${teamId}/folders/${folderToRename.id}`,
+      const response = await apiFetch(`/api/teams/${teamId}/folders/${folderToRename.id}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
-            name: newFolderName.trim(),
-          }),
+            name: newFolderName.trim()
+          })
         }
       );
 
@@ -156,10 +150,9 @@ export default function AllTeamFoldersPage() {
 
   const handleDeleteFolder = async () => {
     try {
-      const response = await fetch(
-        `/api/teams/${teamId}/folders/${folderToDelete.id}`,
+      const response = await apiFetch(`/api/teams/${teamId}/folders/${folderToDelete.id}`,
         {
-          method: "DELETE",
+          method: "DELETE"
         }
       );
 

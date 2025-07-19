@@ -5,12 +5,13 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Folder, X, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 export default function MoveToFolderDialog({
   isOpen,
@@ -19,7 +20,7 @@ export default function MoveToFolderDialog({
   teamId,
   noteId,
   currentFolder,
-  onMoveSuccess,
+  onMoveSuccess
 }) {
   const [folders, setFolders] = useState([]);
   const [filteredFolders, setFilteredFolders] = useState([]);
@@ -51,7 +52,7 @@ export default function MoveToFolderDialog({
 
   const fetchFolders = async () => {
     try {
-      const response = await fetch(`/api/teams/${teamId}/folders`);
+      const response = await apiFetch(`/api/teams/${teamId}/folders`);
       if (response.ok) {
         const data = await response.json();
         setFolders(data.folders || []);
@@ -70,15 +71,12 @@ export default function MoveToFolderDialog({
 
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/notes/${noteId}/move-to-folder`, {
+      const response = await apiFetch(`/api/notes/${noteId}/move-to-folder`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           folderId: selectedFolder.id === "root" ? null : selectedFolder.id,
-          folderName: selectedFolder.id === "root" ? null : selectedFolder.name,
-        }),
+          folderName: selectedFolder.id === "root" ? null : selectedFolder.name
+        })
       });
 
       if (response.ok) {
@@ -112,14 +110,11 @@ export default function MoveToFolderDialog({
     setIsLoading(true);
     try {
       // Create folder
-      const createResponse = await fetch(`/api/teams/${teamId}/folders`, {
+      const createResponse = await apiFetch(`/api/teams/${teamId}/folders`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          name: newFolderName.trim(),
-        }),
+          name: newFolderName.trim()
+        })
       });
 
       if (!createResponse.ok) {
@@ -130,15 +125,12 @@ export default function MoveToFolderDialog({
       const newFolderData = await createResponse.json();
 
       // Move note to new folder
-      const moveResponse = await fetch(`/api/notes/${noteId}/move-to-folder`, {
+      const moveResponse = await apiFetch(`/api/notes/${noteId}/move-to-folder`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           folderId: newFolderData.folder.id,
-          folderName: newFolderData.folder.name,
-        }),
+          folderName: newFolderData.folder.name
+        })
       });
 
       if (moveResponse.ok) {

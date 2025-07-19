@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Brain, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const { data: session, status } = useSession();
@@ -29,12 +30,9 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/forgot-password", {
+      const response = await apiFetch("/api/auth/forgot-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email })
       });
 
       const data = await response.json();

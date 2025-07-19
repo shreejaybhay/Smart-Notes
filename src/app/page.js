@@ -21,7 +21,7 @@ import {
   Target,
   Shuffle,
   Play,
-  Quote,
+  Quote
 } from "lucide-react"
 import Link from "next/link"
 import { ModeToggle } from "@/components/mode_toggle"
@@ -591,11 +591,4 @@ export default function SmartNotesLanding() {
     </div>
   )
 }
-
-
-
-
-
-
-
 

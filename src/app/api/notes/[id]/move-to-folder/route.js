@@ -53,8 +53,8 @@ export async function PATCH(request, { params }) {
       note: {
         id: note._id,
         folder: note.folder,
-        folderId: note.folderId,
-      },
+        folderId: note.folderId
+      }
     });
   } catch (error) {
     console.error("Error moving note to folder:", error);

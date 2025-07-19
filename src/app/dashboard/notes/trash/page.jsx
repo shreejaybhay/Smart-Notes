@@ -14,14 +14,14 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
 import {
@@ -36,9 +36,10 @@ import {
   AlertTriangle,
   Clock,
   FileX,
-  Undo2,
+  Undo2
 } from "lucide-react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 
 export default function TrashNotesPage() {
   const { data: session } = useSession();
@@ -57,11 +58,11 @@ export default function TrashNotesPage() {
 
     try {
       if (showLoader) setIsLoading(true);
-      const response = await fetch("/api/notes/trash", {
+      const response = await apiFetch("/api/notes/trash", {
         cache: "no-store",
         headers: {
-          "Cache-Control": "no-cache",
-        },
+          "Cache-Control": "no-cache"
+        }
       });
 
       if (!response.ok) {
@@ -137,8 +138,8 @@ export default function TrashNotesPage() {
       setNotes((prev) => prev.filter((note) => note._id !== noteId));
 
       // Call API to restore note
-      const response = await fetch(`/api/notes/${noteId}/restore`, {
-        method: "POST",
+      const response = await apiFetch(`/api/notes/${noteId}/restore`, {
+        method: "POST"
       });
 
       if (!response.ok) {
@@ -160,8 +161,8 @@ export default function TrashNotesPage() {
       setNotes((prev) => prev.filter((note) => note._id !== noteId));
 
       // Call API to permanently delete note
-      const response = await fetch(`/api/notes/${noteId}`, {
-        method: "DELETE",
+      const response = await apiFetch(`/api/notes/${noteId}`, {
+        method: "DELETE"
       });
 
       if (!response.ok) {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useNotes } from "@/contexts/NotesContext";
+import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,7 +16,7 @@ import {
   BookOpen,
   Tag,
   Brain,
-  Plus,
+  Plus
 } from "lucide-react";
 
 export default function DashboardHomePage() {
@@ -40,15 +41,12 @@ export default function DashboardHomePage() {
 
     setIsCreating(true);
     try {
-      const response = await fetch("/api/notes", {
+      const response = await apiFetch("/api/notes", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           title: noteTitle.trim(),
-          content: "",
-        }),
+          content: ""
+        })
       });
 
       if (!response.ok) {
@@ -82,33 +80,33 @@ export default function DashboardHomePage() {
     {
       label: "All Notes",
       icon: FileText,
-      action: () => router.push("/dashboard/notes"),
+      action: () => router.push("/dashboard/notes")
     },
     {
       label: "Starred",
       icon: Star,
-      action: () => router.push("/dashboard/notes/starred"),
+      action: () => router.push("/dashboard/notes/starred")
     },
     {
       label: "Search",
       icon: Search,
       action: () => {
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
-      },
+      }
     },
     {
       label: "Templates",
       icon: BookOpen,
       action: () => {
         toast.info("Templates coming soon!");
-      },
+      }
     },
     {
       label: "Tags",
       icon: Tag,
       action: () => {
         toast.info("Tags feature coming soon!");
-      },
+      }
     }
   ];
 

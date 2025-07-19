@@ -18,13 +18,13 @@ import {
   Heading2,
   List,
   ListOrdered,
-  Quote,
+  Quote
 } from "lucide-react";
 
 const SimpleRichTextEditor = ({
   content,
   onChange,
-  placeholder = "Start writing...",
+  placeholder = "Start writing..."
 }) => {
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -34,23 +34,23 @@ const SimpleRichTextEditor = ({
       StarterKit.configure({
         bulletList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: false
         },
         orderedList: {
           keepMarks: true,
-          keepAttributes: false,
-        },
+          keepAttributes: false
+        }
       }),
       Underline,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-blue-500 underline cursor-pointer",
-        },
+          class: "text-blue-500 underline cursor-pointer"
+        }
       }),
       Placeholder.configure({
         placeholder,
-        emptyEditorClass: "is-editor-empty",
+        emptyEditorClass: "is-editor-empty"
       }),
     ],
     content,
@@ -60,9 +60,9 @@ const SimpleRichTextEditor = ({
     editorProps: {
       attributes: {
         class: "focus:outline-none",
-        "data-placeholder": placeholder,
-      },
-    },
+        "data-placeholder": placeholder
+      }
+    }
   });
 
   const addLink = () => {
@@ -86,27 +86,27 @@ const SimpleRichTextEditor = ({
     {
       icon: Bold,
       action: () => editor.chain().focus().toggleBold().run(),
-      isActive: () => editor.isActive("bold"),
+      isActive: () => editor.isActive("bold")
     },
     {
       icon: Italic,
       action: () => editor.chain().focus().toggleItalic().run(),
-      isActive: () => editor.isActive("italic"),
+      isActive: () => editor.isActive("italic")
     },
     {
       icon: UnderlineIcon,
       action: () => editor.chain().focus().toggleUnderline().run(),
-      isActive: () => editor.isActive("underline"),
+      isActive: () => editor.isActive("underline")
     },
     {
       icon: Strikethrough,
       action: () => editor.chain().focus().toggleStrike().run(),
-      isActive: () => editor.isActive("strike"),
+      isActive: () => editor.isActive("strike")
     },
     {
       icon: Code,
       action: () => editor.chain().focus().toggleCode().run(),
-      isActive: () => editor.isActive("code"),
+      isActive: () => editor.isActive("code")
     },
   ];
 

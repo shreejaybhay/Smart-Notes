@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
+  CollapsibleTrigger
 } from "@/components/ui/collapsible";
 import {
   SidebarGroup,
@@ -14,7 +14,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
+  SidebarMenuSubItem
 } from "@/components/ui/sidebar";
 
 export function NavMain({ items, onSearchClick }) {

@@ -29,7 +29,7 @@ export function NotesProvider({ children }) {
   const contextValue = React.useMemo(
     () => ({
       setRefreshNotes,
-      triggerRefresh,
+      triggerRefresh
     }),
     [setRefreshNotes, triggerRefresh]
   );

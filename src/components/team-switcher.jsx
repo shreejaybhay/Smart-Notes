@@ -14,13 +14,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {
+import {apiFetch } from "@/lib/api";
+import { 
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
+  useSidebar
 } from "@/components/ui/sidebar";
 
 export function TeamSwitcher({ teams: initialTeams }) {
@@ -69,7 +70,7 @@ export function TeamSwitcher({ teams: initialTeams }) {
   const fetchTeams = React.useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/teams");
+      const response = await apiFetch("/api/teams");
 
       if (!response.ok) {
         throw new Error("Failed to fetch teams");

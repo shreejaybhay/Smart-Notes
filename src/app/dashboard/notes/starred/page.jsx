@@ -13,7 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
 import {
@@ -26,9 +26,10 @@ import {
   FileText,
   ChevronDown,
   Sparkles,
-  StarOff,
+  StarOff
 } from "lucide-react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 
 export default function StarredNotesPage() {
   const { data: session } = useSession();
@@ -44,11 +45,11 @@ export default function StarredNotesPage() {
 
     try {
       if (showLoader) setIsLoading(true);
-      const response = await fetch("/api/notes/starred", {
+      const response = await apiFetch("/api/notes/starred", {
         cache: "no-store",
         headers: {
-          "Cache-Control": "no-cache",
-        },
+          "Cache-Control": "no-cache"
+        }
       });
 
       if (!response.ok) {
@@ -145,14 +146,11 @@ export default function StarredNotesPage() {
       setNotes((prev) => prev.filter((note) => note._id !== noteId));
 
       // Call API to update starred status
-      const response = await fetch(`/api/notes/${noteId}`, {
+      const response = await apiFetch(`/api/notes/${noteId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          starred: false,
-        }),
+          starred: false
+        })
       });
 
       if (!response.ok) {
@@ -165,7 +163,7 @@ export default function StarredNotesPage() {
       // Dispatch custom event for immediate updates in same tab
       window.dispatchEvent(
         new CustomEvent("noteStarredChanged", {
-          detail: { noteId, starred: false },
+          detail: { noteId, starred: false }
         })
       );
     } catch (error) {
@@ -183,8 +181,8 @@ export default function StarredNotesPage() {
       setNotes((prev) => prev.filter((note) => note._id !== noteId));
 
       // Call API to delete note
-      const response = await fetch(`/api/notes/${noteId}`, {
-        method: "DELETE",
+      const response = await apiFetch(`/api/notes/${noteId}`, {
+        method: "DELETE"
       });
 
       if (!response.ok) {
@@ -628,7 +626,7 @@ export default function StarredNotesPage() {
                             new Date(note.updatedAt).getFullYear() !==
                               new Date().getFullYear()
                               ? "numeric"
-                              : undefined,
+                              : undefined
                         })}
                       </span>
                     </div>

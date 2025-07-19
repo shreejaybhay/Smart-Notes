@@ -35,6 +35,7 @@ import {
   LogOut
 } from "lucide-react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 export default function AccountPage() {
   const { data: session, status, update } = useSession();
@@ -106,7 +107,7 @@ export default function AccountPage() {
 
       const response = await fetch('https://api.imgbb.com/1/upload', {
         method: 'POST',
-        body: formData,
+        body: formData
       });
 
       if (!response.ok) {
@@ -119,16 +120,13 @@ export default function AccountPage() {
         const imageUrl = data.data.url;
 
         // Update profile image in database
-        const updateResponse = await fetch("/api/user/profile", {
+        const updateResponse = await apiFetch("/api/user/profile", {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
             firstName: profileData.firstName,
             lastName: profileData.lastName,
-            profileImage: imageUrl,
-          }),
+            profileImage: imageUrl
+          })
         });
 
         if (!updateResponse.ok) {
@@ -143,7 +141,7 @@ export default function AccountPage() {
         }));
 
         await update({
-          image: imageUrl,
+          image: imageUrl
         });
 
         toast.success("Profile image updated successfully!");
@@ -163,15 +161,12 @@ export default function AccountPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/user/profile", {
+      const response = await apiFetch("/api/user/profile", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           firstName: profileData.firstName,
-          lastName: profileData.lastName,
-        }),
+          lastName: profileData.lastName
+        })
       });
 
       if (!response.ok) {
@@ -183,7 +178,7 @@ export default function AccountPage() {
       await update({
         firstName: profileData.firstName,
         lastName: profileData.lastName,
-        name: `${profileData.firstName} ${profileData.lastName}`,
+        name: `${profileData.firstName} ${profileData.lastName}`
       });
 
       toast.success("Profile updated successfully!");
@@ -212,15 +207,12 @@ export default function AccountPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/user/password", {
+      const response = await apiFetch("/api/user/password", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           currentPassword: profileData.currentPassword,
-          newPassword: profileData.newPassword,
-        }),
+          newPassword: profileData.newPassword
+        })
       });
 
       if (!response.ok) {
@@ -249,8 +241,8 @@ export default function AccountPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/user/account", {
-        method: "DELETE",
+      const response = await apiFetch("/api/user/account", {
+        method: "DELETE"
       });
 
       if (!response.ok) {
@@ -279,7 +271,7 @@ export default function AccountPage() {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
-      day: "numeric",
+      day: "numeric"
     });
   };
 

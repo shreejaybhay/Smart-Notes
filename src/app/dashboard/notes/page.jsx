@@ -14,14 +14,14 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
   Search,
@@ -32,9 +32,10 @@ import {
   MoreHorizontal,
   FileText,
   Trash2,
-  Clock,
+  Clock
 } from "lucide-react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 
 export default function AllNotesPage() {
   const { data: session, status } = useSession();
@@ -114,11 +115,11 @@ export default function AllNotesPage() {
       try {
         if (showLoader) setIsLoading(true);
 
-        const response = await fetch("/api/notes", {
+        const response = await apiFetch("/api/notes", {
           cache: "no-store",
           headers: {
-            "Cache-Control": "no-cache",
-          },
+            "Cache-Control": "no-cache"
+          }
         });
 
         if (!response.ok) {
@@ -135,7 +136,7 @@ export default function AllNotesPage() {
           folder: note.folder,
           starred: note.starred,
           createdAt: new Date(note.createdAt),
-          updatedAt: new Date(note.updatedAt),
+          updatedAt: new Date(note.updatedAt)
         }));
 
         setNotes(transformedNotes);
@@ -173,8 +174,8 @@ export default function AllNotesPage() {
     if (!confirm("Are you sure you want to delete this note?")) return;
 
     try {
-      const response = await fetch(`/api/notes/${noteId}`, {
-        method: "DELETE",
+      const response = await apiFetch(`/api/notes/${noteId}`, {
+        method: "DELETE"
       });
 
       if (!response.ok) {
@@ -195,12 +196,9 @@ export default function AllNotesPage() {
       const note = notes.find((n) => n.id === noteId);
       if (!note) return;
 
-      const response = await fetch(`/api/notes/${noteId}/star`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiFetch(`/api/notes/${noteId}/star`, {
+        method: "POST"
+        });
 
       if (!response.ok) {
         throw new Error("Failed to update note");
@@ -638,7 +636,7 @@ export default function AllNotesPage() {
                                 new Date(note.updatedAt).getFullYear() !==
                                   new Date().getFullYear()
                                   ? "numeric"
-                                  : undefined,
+                                  : undefined
                             })}
                           </span>
                         </div>

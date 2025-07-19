@@ -13,14 +13,14 @@ import {
   MoreVertical,
   Calendar,
   User,
-  FolderOpen,
+  FolderOpen
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -28,8 +28,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog";
+import { apiFetch } from "@/lib/api";
 
 export default function FolderPage() {
   const params = useParams();
@@ -51,13 +52,13 @@ export default function FolderPage() {
     const fetchFolderData = async () => {
       try {
         const [teamRes, folderNotesRes, allNotesRes] = await Promise.all([
-          fetch(`/api/teams/${teamId}`),
-          fetch(
+          apiFetch(`/api/teams/${teamId}`),
+          apiFetch(
             `/api/teams/${teamId}/notes?folder=${encodeURIComponent(
               folder?.name || ""
             )}`
           ),
-          fetch(`/api/teams/${teamId}/notes`),
+          apiFetch(`/api/teams/${teamId}/notes`),
         ]);
 
         if (teamRes.ok) {
@@ -91,7 +92,7 @@ export default function FolderPage() {
   useEffect(() => {
     const fetchFolder = async () => {
       try {
-        const response = await fetch(`/api/teams/${teamId}/folders`);
+        const response = await apiFetch(`/api/teams/${teamId}/folders`);
         if (response.ok) {
           const data = await response.json();
           const foundFolder = data.folders.find((f) => f.id === folderId);
@@ -115,17 +116,14 @@ export default function FolderPage() {
 
   const handleCreateTeamNote = async () => {
     try {
-      const response = await fetch(`/api/teams/${teamId}/notes`, {
+      const response = await apiFetch(`/api/teams/${teamId}/notes`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           title: "Untitled Note",
           content: "",
           isTeamNote: true,
-          folder: folder.name,
-        }),
+          folder: folder.name
+        })
       });
 
       if (response.ok) {
@@ -144,20 +142,16 @@ export default function FolderPage() {
 
   const handleAddExistingNote = async (noteId) => {
     try {
-      const response = await fetch(`/api/teams/${teamId}/notes/${noteId}`, {
+      const response = await apiFetch(`/api/teams/${teamId}/notes/${noteId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          folder: folder.name,
-        }),
+          folder: folder.name
+        })
       });
 
       if (response.ok) {
         // Refresh folder notes
-        const notesRes = await fetch(
-          `/api/teams/${teamId}/notes?folder=${encodeURIComponent(folder.name)}`
+        const notesRes = await apiFetch(`/api/teams/${teamId}/notes?folder=${encodeURIComponent(folder.name)}`
         );
         if (notesRes.ok) {
           const notesData = await notesRes.json();
@@ -165,7 +159,7 @@ export default function FolderPage() {
         }
 
         // Refresh all notes
-        const allNotesRes = await fetch(`/api/teams/${teamId}/notes`);
+        const allNotesRes = await apiFetch(`/api/teams/${teamId}/notes`);
         if (allNotesRes.ok) {
           const allNotesData = await allNotesRes.json();
           setAllTeamNotes(allNotesData.notes || []);
@@ -184,20 +178,16 @@ export default function FolderPage() {
 
   const handleRemoveFromFolder = async (noteId) => {
     try {
-      const response = await fetch(`/api/teams/${teamId}/notes/${noteId}`, {
+      const response = await apiFetch(`/api/teams/${teamId}/notes/${noteId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          folder: null,
-        }),
+          folder: null
+        })
       });
 
       if (response.ok) {
         // Refresh folder notes
-        const notesRes = await fetch(
-          `/api/teams/${teamId}/notes?folder=${encodeURIComponent(folder.name)}`
+        const notesRes = await apiFetch(`/api/teams/${teamId}/notes?folder=${encodeURIComponent(folder.name)}`
         );
         if (notesRes.ok) {
           const notesData = await notesRes.json();
@@ -235,22 +225,18 @@ export default function FolderPage() {
 
     try {
       const promises = selectedNotes.map((noteId) =>
-        fetch(`/api/teams/${teamId}/notes/${noteId}`, {
+        apiFetch(`/api/teams/${teamId}/notes/${noteId}`, {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
-            folder: folder.name,
-          }),
+            folder: folder.name
+          })
         })
       );
 
       await Promise.all(promises);
 
       // Refresh folder notes
-      const notesRes = await fetch(
-        `/api/teams/${teamId}/notes?folder=${encodeURIComponent(folder.name)}`
+      const notesRes = await apiFetch(`/api/teams/${teamId}/notes?folder=${encodeURIComponent(folder.name)}`
       );
       if (notesRes.ok) {
         const notesData = await notesRes.json();
@@ -258,7 +244,7 @@ export default function FolderPage() {
       }
 
       // Refresh all notes
-      const allNotesRes = await fetch(`/api/teams/${teamId}/notes`);
+      const allNotesRes = await apiFetch(`/api/teams/${teamId}/notes`);
       if (allNotesRes.ok) {
         const allNotesData = await allNotesRes.json();
         setAllTeamNotes(allNotesData.notes || []);

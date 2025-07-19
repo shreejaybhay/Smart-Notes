@@ -8,8 +8,8 @@ const createTransporter = () => {
     secure: true, // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
+      pass: process.env.EMAIL_PASSWORD
+    }
   });
 };
 
@@ -340,7 +340,7 @@ export const sendVerificationEmail = async (email, name, token) => {
       to: email,
       subject: template.subject,
       text: template.text,
-      html: template.html,
+      html: template.html
     };
 
     const result = await transporter.sendMail(mailOptions);
@@ -362,7 +362,7 @@ export const sendPasswordResetEmail = async (email, name, token) => {
       to: email,
       subject: template.subject,
       text: template.text,
-      html: template.html,
+      html: template.html
     };
 
     const result = await transporter.sendMail(mailOptions);

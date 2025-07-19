@@ -11,19 +11,20 @@ import {
   Calendar,
   Folder,
   Trash2,
-  Star,
+  Star
 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { apiFetch } from "@/lib/api";
 
 export function SearchDialog({ open, onOpenChange }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,7 +46,7 @@ export function SearchDialog({ open, onOpenChange }) {
   const fetchNotes = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/notes");
+      const response = await apiFetch("/api/notes");
       if (response.ok) {
         const data = await response.json();
         setNotes(data.notes || []);
@@ -59,7 +60,7 @@ export function SearchDialog({ open, onOpenChange }) {
 
   const fetchFolders = async () => {
     try {
-      const response = await fetch("/api/folders");
+      const response = await apiFetch("/api/folders");
       if (response.ok) {
         const data = await response.json();
         setFolders(data.folders || []);
@@ -92,7 +93,7 @@ export function SearchDialog({ open, onOpenChange }) {
           ? "tag"
           : query.includes(":")
             ? "filter"
-            : "text",
+            : "text"
       };
 
       const updated = [

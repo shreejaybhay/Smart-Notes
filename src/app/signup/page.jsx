@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,7 @@ import {
   Check,
   X,
   AlertCircle,
-  CheckCircle,
+  CheckCircle
 } from "lucide-react";
 import Link from "next/link";
 
@@ -37,13 +38,13 @@ export default function SignupPage() {
     firstName: "",
     lastName: "",
     email: "",
-    password: "",
+    password: ""
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState({
     google: false,
-    github: false,
+    github: false
   });
 
   const passwordRequirements = [
@@ -81,7 +82,7 @@ export default function SignupPage() {
     try {
       const result = await signIn(provider, {
         callbackUrl: "/dashboard",
-        redirect: false,
+        redirect: false
       });
 
       if (result?.error) {
@@ -102,12 +103,9 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/signup", {
+      const response = await apiFetch("/api/auth/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData)
       });
 
       const data = await response.json();
@@ -121,7 +119,7 @@ export default function SignupPage() {
         firstName: "",
         lastName: "",
         email: "",
-        password: "",
+        password: ""
       });
       setAgreedToTerms(false);
 

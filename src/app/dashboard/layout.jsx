@@ -7,7 +7,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { SearchDialog } from "@/components/search-dialog";
 import { Separator } from "@/components/ui/separator";
@@ -19,7 +19,7 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
+  BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 
 function DashboardContent({ children }) {
@@ -42,7 +42,7 @@ function DashboardContent({ children }) {
       const sectionLabel = section.charAt(0).toUpperCase() + section.slice(1);
       breadcrumbs.push({
         label: sectionLabel,
-        href: `/dashboard/${section}`,
+        href: `/dashboard/${section}`
       });
 
       // Add specific page breadcrumb if exists

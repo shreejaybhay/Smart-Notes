@@ -12,20 +12,20 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
   Plus,
@@ -38,9 +38,10 @@ import {
   Trash2,
   Search,
   Users,
-  Mail,
+  Mail
 } from "lucide-react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 export default function SharedNotesPage() {
   const [sharedItems, setSharedItems] = useState([]);
@@ -67,7 +68,7 @@ export default function SharedNotesPage() {
 
     setIsSearching(true);
     try {
-      const response = await fetch(`/api/shared/search?q=${encodeURIComponent(query)}`);
+      const response = await apiFetch(`/api/shared/search?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
         throw new Error('Failed to search files');
       }
@@ -91,7 +92,7 @@ export default function SharedNotesPage() {
     }
 
     try {
-      const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
+      const response = await apiFetch(`/api/users/search?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
         throw new Error('Failed to search users');
       }
@@ -133,8 +134,8 @@ export default function SharedNotesPage() {
     try {
       // Load both shared by me and shared with me
       const [sharedByMeResponse, sharedWithMeResponse] = await Promise.all([
-        fetch('/api/shared?type=shared-by-me'),
-        fetch('/api/shared?type=shared-with-me')
+        apiFetch('/api/shared?type=shared-by-me'),
+        apiFetch('/api/shared?type=shared-with-me')
       ]);
 
       if (!sharedByMeResponse.ok || !sharedWithMeResponse.ok) {
@@ -171,16 +172,13 @@ export default function SharedNotesPage() {
       // Extract note ID from selected note (remove folder_ prefix if it exists)
       const noteId = selectedNote.startsWith('folder_') ? selectedNote.replace('folder_', '') : selectedNote;
 
-      const response = await fetch('/api/shared', {
+      const response = await apiFetch('/api/shared', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           noteId,
           emails,
           permission: permission === 'read' ? 'viewer' : 'editor'
-        }),
+        })
       });
 
       if (!response.ok) {
@@ -230,16 +228,13 @@ export default function SharedNotesPage() {
       const targetUserId = userId || item.sharedWith[0]?.id;
       if (!targetUserId) return;
 
-      const response = await fetch(`/api/shared/${itemId}`, {
+      const response = await apiFetch(`/api/shared/${itemId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           action: 'update-permission',
           userId: targetUserId,
           permission: newPermission === 'write' ? 'editor' : 'viewer'
-        }),
+        })
       });
 
       if (!response.ok) {
@@ -259,8 +254,8 @@ export default function SharedNotesPage() {
 
   const handleRemoveShare = async (itemId) => {
     try {
-      const response = await fetch(`/api/shared/${itemId}?action=stop-sharing`, {
-        method: 'DELETE',
+      const response = await apiFetch(`/api/shared/${itemId}?action=stop-sharing`, {
+        method: 'DELETE'
       });
 
       if (!response.ok) {
@@ -279,8 +274,8 @@ export default function SharedNotesPage() {
 
   const handleLeaveShare = async (itemId) => {
     try {
-      const response = await fetch(`/api/shared/${itemId}?action=leave`, {
-        method: 'DELETE',
+      const response = await apiFetch(`/api/shared/${itemId}?action=leave`, {
+        method: 'DELETE'
       });
 
       if (!response.ok) {

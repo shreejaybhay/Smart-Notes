@@ -10,14 +10,14 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,7 +33,7 @@ import {
   Check,
   Globe,
   Lock,
-  Trash2,
+  Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -52,7 +52,7 @@ export function ShareNoteDialog({ open, onOpenChange, note }) {
       email: "john@example.com",
       role: "editor",
       avatar: "/avatars/user2.jpg",
-      status: "active",
+      status: "active"
     },
     {
       id: "2",
@@ -60,7 +60,7 @@ export function ShareNoteDialog({ open, onOpenChange, note }) {
       email: "jane@example.com",
       role: "viewer",
       avatar: "/avatars/user3.jpg",
-      status: "active",
+      status: "active"
     },
     {
       id: "3",
@@ -68,7 +68,7 @@ export function ShareNoteDialog({ open, onOpenChange, note }) {
       email: "mike@example.com",
       role: "viewer",
       avatar: "/avatars/user4.jpg",
-      status: "pending",
+      status: "pending"
     },
   ];
 

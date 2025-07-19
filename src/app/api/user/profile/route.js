@@ -55,8 +55,8 @@ export async function PUT(request) {
       user: {
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        profileImage: savedUser.image,
-      },
+        profileImage: savedUser.image
+      }
     });
   } catch (error) {
     console.error("Error updating profile:", error);

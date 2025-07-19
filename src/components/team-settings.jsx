@@ -12,7 +12,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
 
 import {
@@ -24,10 +24,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { Upload, Trash2, LogOut, Settings, Users } from "lucide-react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 export default function TeamSettings({ team, onTeamUpdate }) {
   const [isUpdatingTeam, setIsUpdatingTeam] = useState(false);
@@ -46,15 +47,12 @@ export default function TeamSettings({ team, onTeamUpdate }) {
 
     try {
       setIsUpdatingTeam(true);
-      const response = await fetch(`/api/teams/${team.id}`, {
+      const response = await apiFetch(`/api/teams/${team.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           name: teamName.trim(),
-          description: teamDescription.trim(),
-        }),
+          description: teamDescription.trim()
+        })
       });
 
       if (response.ok) {
@@ -104,7 +102,7 @@ export default function TeamSettings({ team, onTeamUpdate }) {
 
       const uploadResponse = await fetch("https://api.imgbb.com/1/upload", {
         method: "POST",
-        body: formData,
+        body: formData
       });
 
       if (!uploadResponse.ok) {
@@ -115,14 +113,11 @@ export default function TeamSettings({ team, onTeamUpdate }) {
       const imageUrl = uploadData.data.url;
 
       // Update team avatar
-      const response = await fetch(`/api/teams/${team.id}`, {
+      const response = await apiFetch(`/api/teams/${team.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
-          avatar: imageUrl,
-        }),
+          avatar: imageUrl
+        })
       });
 
       if (response.ok) {
@@ -143,16 +138,12 @@ export default function TeamSettings({ team, onTeamUpdate }) {
   // Change Member Role
   const handleChangeRole = async (memberId, newRole) => {
     try {
-      const response = await fetch(
-        `/api/teams/${team.id}/members/${memberId}`,
+      const response = await apiFetch(`/api/teams/${team.id}/members/${memberId}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
-            role: newRole,
-          }),
+            role: newRole
+          })
         }
       );
 
@@ -184,12 +175,11 @@ export default function TeamSettings({ team, onTeamUpdate }) {
         return;
       }
 
-      const response = await fetch(
-        `/api/teams/${team.id}/members/${
+      const response = await apiFetch(`/api/teams/${team.id}/members/${
           currentUserMember.id || currentUserMember._id
         }`,
         {
-          method: "DELETE",
+          method: "DELETE"
         }
       );
 
@@ -209,8 +199,8 @@ export default function TeamSettings({ team, onTeamUpdate }) {
   // Delete Team
   const handleDeleteTeam = async () => {
     try {
-      const response = await fetch(`/api/teams/${team.id}`, {
-        method: "DELETE",
+      const response = await apiFetch(`/api/teams/${team.id}`, {
+        method: "DELETE"
       });
 
       if (response.ok) {

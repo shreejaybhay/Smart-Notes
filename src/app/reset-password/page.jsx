@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,7 @@ import {
   AlertCircle,
   CheckCircle,
   Check,
-  X,
+  X
 } from "lucide-react";
 import Link from "next/link";
 
@@ -36,7 +37,7 @@ function TokenHandler({ onTokenValidated }) {
     // Validate token
     const validateToken = async () => {
       try {
-        const response = await fetch(
+        const response = await apiFetch(
           `/api/auth/reset-password?token=${tokenParam}`
         );
         if (response.ok) {
@@ -103,12 +104,9 @@ function ResetPasswordContent({ token, isValidToken }) {
     }
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
+      const response = await apiFetch("/api/auth/reset-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ token, password })
       });
 
       const data = await response.json();

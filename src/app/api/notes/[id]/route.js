@@ -6,8 +6,6 @@ import Team from '@/models/Team';
 import Activity from '@/models/Activity';
 import mongoose from 'mongoose';
 
-
-
 // GET /api/notes/[id] - Get a specific note
 export async function GET(request, { params }) {
   try {

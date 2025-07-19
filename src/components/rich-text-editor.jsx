@@ -13,7 +13,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
 } from "@/components/ui/tooltip";
 import {
   Bold,
@@ -31,7 +31,7 @@ import {
   AlignCenter,
   AlignRight,
   AlignJustify,
-  Plus,
+  Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -45,73 +45,73 @@ const MenuBar = ({ editor }) => {
       icon: Undo,
       title: "Undo",
       action: () => editor.chain().focus().undo().run(),
-      isActive: () => false,
+      isActive: () => false
     },
     {
       icon: Redo,
       title: "Redo",
       action: () => editor.chain().focus().redo().run(),
-      isActive: () => false,
+      isActive: () => false
     },
     {
-      type: "divider",
+      type: "divider"
     },
     {
       icon: Heading1,
       title: "Heading 1",
       action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
-      isActive: () => editor.isActive("heading", { level: 1 }),
+      isActive: () => editor.isActive("heading", { level: 1 })
     },
     {
-      type: "divider",
+      type: "divider"
     },
     {
       icon: List,
       title: "Bullet List",
       action: () => editor.chain().focus().toggleBulletList().run(),
-      isActive: () => editor.isActive("bulletList"),
+      isActive: () => editor.isActive("bulletList")
     },
     {
       icon: ListOrdered,
       title: "Ordered List",
       action: () => editor.chain().focus().toggleOrderedList().run(),
-      isActive: () => editor.isActive("orderedList"),
+      isActive: () => editor.isActive("orderedList")
     },
     {
-      type: "divider",
+      type: "divider"
     },
     {
       icon: Quote,
       title: "Blockquote",
       action: () => editor.chain().focus().toggleBlockquote().run(),
-      isActive: () => editor.isActive("blockquote"),
+      isActive: () => editor.isActive("blockquote")
     },
     {
-      type: "divider",
+      type: "divider"
     },
     {
       icon: Bold,
       title: "Bold",
       action: () => editor.chain().focus().toggleBold().run(),
-      isActive: () => editor.isActive("bold"),
+      isActive: () => editor.isActive("bold")
     },
     {
       icon: Italic,
       title: "Italic",
       action: () => editor.chain().focus().toggleItalic().run(),
-      isActive: () => editor.isActive("italic"),
+      isActive: () => editor.isActive("italic")
     },
     {
       icon: Strikethrough,
       title: "Strike",
       action: () => editor.chain().focus().toggleStrike().run(),
-      isActive: () => editor.isActive("strike"),
+      isActive: () => editor.isActive("strike")
     },
     {
       icon: Code,
       title: "Code",
       action: () => editor.chain().focus().toggleCode().run(),
-      isActive: () => editor.isActive("code"),
+      isActive: () => editor.isActive("code")
     },
     {
       icon: Link2,
@@ -122,43 +122,43 @@ const MenuBar = ({ editor }) => {
           editor.chain().focus().setLink({ href: url }).run();
         }
       },
-      isActive: () => editor.isActive("link"),
+      isActive: () => editor.isActive("link")
     },
     {
-      type: "divider",
+      type: "divider"
     },
     {
       icon: AlignLeft,
       title: "Align Left",
       action: () => editor.chain().focus().setTextAlign("left").run(),
-      isActive: () => editor.isActive({ textAlign: "left" }),
+      isActive: () => editor.isActive({ textAlign: "left" })
     },
     {
       icon: AlignCenter,
       title: "Align Center",
       action: () => editor.chain().focus().setTextAlign("center").run(),
-      isActive: () => editor.isActive({ textAlign: "center" }),
+      isActive: () => editor.isActive({ textAlign: "center" })
     },
     {
       icon: AlignRight,
       title: "Align Right",
       action: () => editor.chain().focus().setTextAlign("right").run(),
-      isActive: () => editor.isActive({ textAlign: "right" }),
+      isActive: () => editor.isActive({ textAlign: "right" })
     },
     {
       icon: AlignJustify,
       title: "Justify",
       action: () => editor.chain().focus().setTextAlign("justify").run(),
-      isActive: () => editor.isActive({ textAlign: "justify" }),
+      isActive: () => editor.isActive({ textAlign: "justify" })
     },
     {
-      type: "divider",
+      type: "divider"
     },
     {
       icon: Plus,
       title: "Add",
       action: () => {},
-      isActive: () => false,
+      isActive: () => false
     },
   ];
 
@@ -202,7 +202,7 @@ const MenuBar = ({ editor }) => {
 export function RichTextEditor({
   content,
   onChange,
-  placeholder = "Start writing...",
+  placeholder = "Start writing..."
 }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -215,27 +215,27 @@ export function RichTextEditor({
       StarterKit.configure({
         bulletList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: false
         },
         orderedList: {
           keepMarks: true,
-          keepAttributes: false,
-        },
+          keepAttributes: false
+        }
       }),
       Placeholder.configure({
         placeholder: placeholder,
-        emptyEditorClass: "is-editor-empty",
+        emptyEditorClass: "is-editor-empty"
       }),
       Typography,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
           class:
-            "text-blue-500 underline underline-offset-2 hover:text-blue-600",
-        },
+            "text-blue-500 underline underline-offset-2 hover:text-blue-600"
+        }
       }),
       TextAlign.configure({
-        types: ["heading", "paragraph"],
+        types: ["heading", "paragraph"]
       }),
     ],
     content: content,
@@ -243,12 +243,12 @@ export function RichTextEditor({
       attributes: {
         class:
           "prose prose-neutral dark:prose-invert max-w-none focus:outline-none min-h-[400px] px-6 py-4",
-        spellcheck: "false",
-      },
+        spellcheck: "false"
+      }
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
-    },
+    }
   });
 
   if (!isMounted) {

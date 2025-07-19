@@ -8,7 +8,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -21,16 +21,17 @@ import {
   ArrowLeft,
   Calendar,
   User,
-  Folder,
+  Folder
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import MoveToFolderDialog from "@/components/dialogs/MoveToFolderDialog";
 import {
+import { apiFetch } from "@/lib/api";
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
 export default function AllTeamNotesPage() {
@@ -51,9 +52,9 @@ export default function AllTeamNotesPage() {
     const fetchTeamData = async () => {
       try {
         const [teamRes, notesRes, foldersRes] = await Promise.all([
-          fetch(`/api/teams/${teamId}`),
-          fetch(`/api/teams/${teamId}/notes`),
-          fetch(`/api/teams/${teamId}/folders`),
+          apiFetch(`/api/teams/${teamId}`),
+          apiFetch(`/api/teams/${teamId}/notes`),
+          apiFetch(`/api/teams/${teamId}/folders`),
         ]);
 
         if (teamRes.ok) {
@@ -88,16 +89,13 @@ export default function AllTeamNotesPage() {
 
   const handleCreateTeamNote = async () => {
     try {
-      const response = await fetch(`/api/teams/${teamId}/notes`, {
+      const response = await apiFetch(`/api/teams/${teamId}/notes`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           title: "Untitled Note",
           content: "",
-          isTeamNote: true,
-        }),
+          isTeamNote: true
+        })
       });
 
       if (response.ok) {

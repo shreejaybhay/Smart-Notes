@@ -32,7 +32,7 @@ export async function DELETE(request) {
       await User.findByIdAndDelete(session.user.id);
 
       return NextResponse.json({
-        message: "Account deleted successfully",
+        message: "Account deleted successfully"
       });
     } catch (deleteError) {
       console.error("Delete error:", deleteError);

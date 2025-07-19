@@ -6,7 +6,7 @@ export const THEME_COLORS = {
   secondary: 'hsl(var(--secondary))',
   accent: 'hsl(var(--accent))',
   muted: 'hsl(var(--muted))',
-  destructive: 'hsl(var(--destructive))',
+  destructive: 'hsl(var(--destructive))'
 };
 
 export const THEME_COLOR_BACKGROUNDS = {
@@ -14,7 +14,7 @@ export const THEME_COLOR_BACKGROUNDS = {
   secondary: 'hsl(var(--secondary) / 0.1)',
   accent: 'hsl(var(--accent) / 0.1)',
   muted: 'hsl(var(--muted) / 0.1)',
-  destructive: 'hsl(var(--destructive) / 0.1)',
+  destructive: 'hsl(var(--destructive) / 0.1)'
 };
 
 /**

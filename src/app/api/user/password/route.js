@@ -64,7 +64,7 @@ export async function PUT(request) {
     await user.save();
 
     return NextResponse.json({
-      message: "Password changed successfully",
+      message: "Password changed successfully"
     });
   } catch (error) {
     console.error("Error changing password:", error);

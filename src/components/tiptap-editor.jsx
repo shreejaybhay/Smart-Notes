@@ -64,7 +64,7 @@ import {
   MoreHorizontal,
   FileImage,
   Link2,
-  Unlink,
+  Unlink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
 } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
@@ -83,14 +83,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
+  DropdownMenuSubTrigger
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from "@/components/ui/popover";
 
 // Advanced Tiptap Toolbar Component
@@ -698,7 +698,7 @@ export function TiptapEditor({
   teamName = null,
   userRole = null,
   hasUnsavedChanges = false,
-  isReadMode = false,
+  isReadMode = false
 }) {
   const [isMounted, setIsMounted] = React.useState(false);
 
@@ -712,12 +712,12 @@ export function TiptapEditor({
       StarterKit.configure({
         bulletList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: false
         },
         orderedList: {
           keepMarks: true,
-          keepAttributes: false,
-        },
+          keepAttributes: false
+        }
       }),
       Underline,
       Subscript,
@@ -727,48 +727,48 @@ export function TiptapEditor({
       Color,
       FontFamily,
       Highlight.configure({
-        multicolor: true,
+        multicolor: true
       }),
       TextAlign.configure({
-        types: ["heading", "paragraph"],
+        types: ["heading", "paragraph"]
       }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
           class:
             "text-primary underline underline-offset-2 hover:opacity-80 cursor-pointer",
-          target: "_blank",
-        },
+          target: "_blank"
+        }
       }),
       Image.configure({
         HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg my-4",
-        },
+          class: "max-w-full h-auto rounded-lg my-4"
+        }
       }),
       HorizontalRule.configure({
         HTMLAttributes: {
-          class: "my-4 border-border",
-        },
+          class: "my-4 border-border"
+        }
       }),
       Table.configure({
-        resizable: true,
+        resizable: true
       }),
       TableRow,
       TableHeader,
       TableCell,
       TaskList,
       TaskItem.configure({
-        nested: true,
+        nested: true
       }),
       Placeholder.configure({
-        placeholder: placeholder || "Start writing...",
+        placeholder: placeholder || "Start writing..."
       }),
       CharacterCount,
       Dropcursor,
       Gapcursor,
       Focus.configure({
         className: "has-focus",
-        mode: "all",
+        mode: "all"
       }),
     ],
     content,
@@ -777,7 +777,7 @@ export function TiptapEditor({
       if (!readOnly) {
         onChange(editor.getHTML());
       }
-    },
+    }
   });
 
   if (!isMounted) {
@@ -849,7 +849,7 @@ export function TiptapEditor({
                         <span className="hidden sm:inline">
                           Saved {new Date(lastSaved).toLocaleTimeString([], {
                             hour: "2-digit",
-                            minute: "2-digit",
+                            minute: "2-digit"
                           })}
                         </span>
                       </span>

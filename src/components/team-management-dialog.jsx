@@ -11,14 +11,14 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,15 +30,16 @@ import {
   Eye,
   UserPlus,
   Copy,
-  Check,
+  Check
 } from "lucide-react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 export function TeamManagementDialog({
   open,
   onOpenChange,
   team,
-  isCreating = false,
+  isCreating = false
 }) {
   const [teamName, setTeamName] = useState(team?.name || "");
   const [teamDescription, setTeamDescription] = useState(
@@ -63,7 +64,7 @@ export function TeamManagementDialog({
 
     try {
       setLoadingMembers(true);
-      const response = await fetch(`/api/teams/${team.id}/members`);
+      const response = await apiFetch(`/api/teams/${team.id}/members`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch team members");
@@ -89,15 +90,12 @@ export function TeamManagementDialog({
     try {
       if (isCreating) {
         // Create new team
-        const response = await fetch("/api/teams", {
+        const response = await apiFetch("/api/teams", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
             name: teamName.trim(),
-            description: teamDescription.trim(),
-          }),
+            description: teamDescription.trim()
+          })
         });
 
         const data = await response.json();
@@ -116,15 +114,12 @@ export function TeamManagementDialog({
         }
       } else {
         // Update existing team
-        const response = await fetch(`/api/teams/${team.id}`, {
+        const response = await apiFetch(`/api/teams/${team.id}`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
             name: teamName.trim(),
-            description: teamDescription.trim(),
-          }),
+            description: teamDescription.trim()
+          })
         });
 
         const data = await response.json();
@@ -159,15 +154,12 @@ export function TeamManagementDialog({
     }
 
     try {
-      const response = await fetch(`/api/teams/${team.id}/members`, {
+      const response = await apiFetch(`/api/teams/${team.id}/members`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           email: inviteEmail.trim(),
-          role: inviteRole,
-        }),
+          role: inviteRole
+        })
       });
 
       const data = await response.json();
