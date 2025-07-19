@@ -1,17 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { TiptapEditor } from "@/components/tiptap-editor";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function NotePage() {
+// Component to handle search params with Suspense
+function SearchParamsProvider({ children }) {
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get("team");
+  
+  return children({ teamId });
+}
+
+function NotePageContent({ teamId }) {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const noteId = params.id;
-  const teamId = searchParams.get("team");
 
   const [note, setNote] = useState({
     title: "",
@@ -514,5 +520,27 @@ export default function NotePage() {
         isReadMode={isReadMode}
       />
     </div>
+  );
+}
+export default function NotePage() {
+  return (
+    <Suspense fallback={
+      <div className="h-full overflow-hidden p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <Skeleton className="h-12 w-3/4" />
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-4/5" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+        </div>
+      </div>
+    }>
+      <SearchParamsProvider>
+        {({ teamId }) => <NotePageContent teamId={teamId} />}
+      </SearchParamsProvider>
+    </Suspense>
   );
 }

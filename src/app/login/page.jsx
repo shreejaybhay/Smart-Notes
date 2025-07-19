@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -13,30 +13,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Brain, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function LoginPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+// Component to handle search params with Suspense
+function SearchParamsHandler() {
   const searchParams = useSearchParams();
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isOAuthLoading, setIsOAuthLoading] = useState({
-    google: false,
-    github: false,
-  });
 
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.push("/dashboard");
-    }
-  }, [status, router]);
-
-  // Check for URL parameters and show toast messages
   useEffect(() => {
     const verified = searchParams.get("verified");
     const message = searchParams.get("message");
@@ -62,6 +42,31 @@ export default function LoginPage() {
       }
     }
   }, [searchParams]);
+
+  return null;
+}
+
+function LoginPageContent() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOAuthLoading, setIsOAuthLoading] = useState({
+    google: false,
+    github: false,
+  });
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -324,5 +329,15 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+export default function LoginPage() {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <SearchParamsHandler />
+      </Suspense>
+      <LoginPageContent />
+    </>
   );
 }

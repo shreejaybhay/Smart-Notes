@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,16 +21,50 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export default function ResetPasswordPage() {
-  const router = useRouter();
+// Component to handle search params with Suspense
+function TokenHandler({ onTokenValidated }) {
   const searchParams = useSearchParams();
-  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    const tokenParam = searchParams.get("token");
+    if (!tokenParam) {
+      toast.error("No reset token provided");
+      onTokenValidated(null, false);
+      return;
+    }
+
+    // Validate token
+    const validateToken = async () => {
+      try {
+        const response = await fetch(
+          `/api/auth/reset-password?token=${tokenParam}`
+        );
+        if (response.ok) {
+          onTokenValidated(tokenParam, true);
+        } else {
+          const data = await response.json();
+          toast.error(data.error || "Invalid or expired reset token");
+          onTokenValidated(tokenParam, false);
+        }
+      } catch (error) {
+        toast.error("Failed to validate reset token");
+        onTokenValidated(tokenParam, false);
+      }
+    };
+
+    validateToken();
+  }, [searchParams, onTokenValidated]);
+
+  return null;
+}
+
+function ResetPasswordContent({ token, isValidToken }) {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isValidToken, setIsValidToken] = useState(null);
 
   // Password requirements
   const passwordRequirements = [
@@ -50,39 +84,6 @@ export default function ResetPasswordPage() {
     if (passwordStrength <= 3) return "Good";
     return "Strong";
   };
-
-  // Check token validity on mount
-  useEffect(() => {
-    const tokenParam = searchParams.get("token");
-    if (!tokenParam) {
-      toast.error("No reset token provided");
-      setIsValidToken(false);
-      return;
-    }
-
-    setToken(tokenParam);
-
-    // Validate token
-    const validateToken = async () => {
-      try {
-        const response = await fetch(
-          `/api/auth/reset-password?token=${tokenParam}`
-        );
-        if (response.ok) {
-          setIsValidToken(true);
-        } else {
-          const data = await response.json();
-          toast.error(data.error || "Invalid or expired reset token");
-          setIsValidToken(false);
-        }
-      } catch (error) {
-        toast.error("Failed to validate reset token");
-        setIsValidToken(false);
-      }
-    };
-
-    validateToken();
-  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -338,5 +339,24 @@ export default function ResetPasswordPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  const [token, setToken] = useState("");
+  const [isValidToken, setIsValidToken] = useState(null);
+
+  const handleTokenValidated = (tokenParam, isValid) => {
+    setToken(tokenParam || "");
+    setIsValidToken(isValid);
+  };
+
+  return (
+    <>
+      <Suspense fallback={null}>
+        <TokenHandler onTokenValidated={handleTokenValidated} />
+      </Suspense>
+      <ResetPasswordContent token={token} isValidToken={isValidToken} />
+    </>
   );
 }
