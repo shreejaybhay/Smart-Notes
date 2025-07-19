@@ -22,6 +22,7 @@ import {
   Trash,
   Users,
   Copy,
+  Settings,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";

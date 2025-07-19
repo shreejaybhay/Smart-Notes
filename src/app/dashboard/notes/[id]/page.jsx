@@ -48,7 +48,39 @@ export default function NotePage() {
       setLastSaved(new Date());
       setHasUnsavedChanges(false); // Clear unsaved changes when loading
 
-      // If it's a team note, get user permissions
+      // Check user permissions for this note
+      try {
+        const permissionResponse = await fetch(`/api/notes/${noteId}/permissions`);
+        if (permissionResponse.ok) {
+          const permissionData = await permissionResponse.json();
+          setUserRole(permissionData.role);
+          setCanEdit(permissionData.canEdit);
+          
+          // Store permission details for UI display
+          setNote(prev => ({
+            ...prev,
+            permissionDetails: permissionData.permissionDetails,
+            accessSource: permissionData.accessSource,
+            teamRole: permissionData.teamRole,
+            collaboratorRole: permissionData.collaboratorRole
+          }));
+          
+          console.log("User permissions:", permissionData);
+        } else {
+          // Fallback: check if user owns the note
+          const session = await fetch('/api/auth/session').then(res => res.json());
+          const isOwner = data.note.userId === session?.user?.id;
+          setCanEdit(isOwner);
+          setUserRole(isOwner ? 'owner' : 'viewer');
+        }
+      } catch (error) {
+        console.error("Error checking permissions:", error);
+        // Default to read-only for safety
+        setCanEdit(false);
+        setUserRole('viewer');
+      }
+
+      // If it's a team note, also get team permissions
       if (data.note.isTeamNote && teamId) {
         try {
           const teamResponse = await fetch(`/api/teams/${teamId}`);
@@ -57,18 +89,14 @@ export default function NotePage() {
             const currentUser = teamData.team.currentUser;
 
             if (currentUser) {
-              console.log("Current user permissions:", currentUser);
+              console.log("Team permissions:", currentUser);
+              // Team permissions override individual permissions for team notes
               setUserRole(currentUser.role);
               setCanEdit(currentUser.permissions?.canEditNotes || false);
-            } else {
-              console.log("Current user not found in team");
-              setCanEdit(false);
             }
           }
         } catch (error) {
           console.error("Error fetching team permissions:", error);
-          // Default to read-only for safety
-          setCanEdit(false);
         }
       }
     } catch (error) {
@@ -85,9 +113,10 @@ export default function NotePage() {
     async (updatedNote, isManualSave = false) => {
       if (!noteId || !updatedNote._id) return;
 
-      // Don't save if user is a viewer on a team note
-      if (note.isTeamNote && userRole === "viewer" && !canEdit) {
-        console.log("Save blocked: User is viewer on team note");
+      // Don't save if user doesn't have edit permissions (respects highest permission)
+      if (!canEdit) {
+        console.log("Save blocked: User doesn't have edit permissions");
+        toast.error("You don't have permission to edit this note");
         return;
       }
 
@@ -315,7 +344,7 @@ export default function NotePage() {
           {/* Read Mode Header */}
           <div className="mb-6 pb-4 border-b border-border">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-2 py-1 bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-300 text-xs rounded-md border border-green-200 dark:border-green-800 font-medium">
                   Read Mode
                 </span>
@@ -324,14 +353,63 @@ export default function NotePage() {
                     {note.teamMetadata.teamName}
                   </span>
                 )}
+                
+                {/* Permission Status Indicator */}
+                {note.permissionDetails && (
+                  <div className="flex items-center gap-2">
+                    {/* Main Permission Badge */}
+                    <span className={`px-2 py-1 text-xs rounded-md font-medium flex items-center gap-1 ${
+                      canEdit 
+                        ? "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                        : "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
+                    }`}>
+                      {canEdit ? (
+                        <>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          Write Access
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          Read-only Access
+                        </>
+                      )}
+                      {note.accessSource === 'direct-share' && (
+                        <span className="text-xs opacity-75">(from direct share)</span>
+                      )}
+                    </span>
+
+                    {/* Conflicting Permissions Indicator */}
+                    {note.permissionDetails.hasTeamAccess && note.permissionDetails.hasDirectShare && (
+                      <span className="px-2 py-1 bg-yellow-50 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-300 text-xs rounded-md border border-yellow-200 dark:border-yellow-800 font-medium flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        Team: {note.permissionDetails.teamPermission}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={handleEditMode}
-                  className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-sm rounded-lg transition-colors duration-200 font-medium"
-                >
-                  Edit Note
-                </button>
+                {canEdit && (
+                  <button
+                    onClick={handleEditMode}
+                    className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-sm rounded-lg transition-colors duration-200 font-medium"
+                  >
+                    Edit Note
+                  </button>
+                )}
+                {!canEdit && (
+                  <span className="px-3 py-1.5 bg-muted text-muted-foreground text-sm rounded-lg font-medium">
+                    Read-only Access
+                  </span>
+                )}
               </div>
             </div>
             
@@ -367,7 +445,11 @@ export default function NotePage() {
                 <div className="text-center py-12">
                   <div className="text-muted-foreground">
                     <p className="text-lg mb-2">This note is empty</p>
-                    <p className="text-sm">Click "Edit Note" to start writing</p>
+                    {canEdit ? (
+                      <p className="text-sm">Click "Edit Note" to start writing</p>
+                    ) : (
+                      <p className="text-sm">You have read-only access to this note</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -391,18 +473,20 @@ export default function NotePage() {
             </div>
           )}
 
-          {/* Floating Edit Button for Mobile */}
-          <div className="fixed bottom-6 right-6 sm:hidden">
-            <button
-              onClick={handleEditMode}
-              className="w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center"
-              title="Edit Note"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-          </div>
+          {/* Floating Edit Button for Mobile - Only show if user can edit */}
+          {canEdit && (
+            <div className="fixed bottom-6 right-6 sm:hidden">
+              <button
+                onClick={handleEditMode}
+                className="w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center"
+                title="Edit Note"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );

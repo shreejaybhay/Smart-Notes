@@ -221,10 +221,13 @@ export default function AllTeamNotesPage() {
                 {filteredNotes.length === 1 ? "note" : "notes"}
               </p>
             </div>
-            <Button onClick={handleCreateTeamNote} className="gap-2">
-              <Plus className="h-4 w-4" />
-              New Note
-            </Button>
+            {(team?.team?.userPermissions?.canCreateNotes || team?.team?.isOwner) && 
+             team?.team?.currentUser?.role !== 'viewer' && (
+              <Button onClick={handleCreateTeamNote} className="gap-2">
+                <Plus className="h-4 w-4" />
+                New Note
+              </Button>
+            )}
           </div>
         </div>
 
@@ -255,7 +258,8 @@ export default function AllTeamNotesPage() {
                 ? "Try adjusting your search terms"
                 : "Create your first team note to get started"}
             </p>
-            {!searchQuery && (
+            {!searchQuery && (team?.team?.userPermissions?.canCreateNotes || team?.team?.isOwner) && 
+             team?.team?.currentUser?.role !== 'viewer' && (
               <Button onClick={handleCreateTeamNote} className="gap-2">
                 <Plus className="h-4 w-4" />
                 Create Note

@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Users,
   FileText,
@@ -494,7 +495,7 @@ export default function TeamDashboard() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-6 py-8 min-h-screen">
       {/* Team Header */}
       <div className="mb-12">
         <div className="flex items-center justify-between mb-6">
@@ -524,52 +525,47 @@ export default function TeamDashboard() {
           <div className="flex space-x-6">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`pb-3 text-sm font-medium transition-colors ${
-                activeTab === "overview"
-                  ? "text-foreground border-b-2 border-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`pb-3 text-sm font-medium transition-colors ${activeTab === "overview"
+                ? "text-foreground border-b-2 border-foreground"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               Overview
             </button>
             <button
               onClick={() => setActiveTab("notes")}
-              className={`pb-3 text-sm font-medium transition-colors ${
-                activeTab === "notes"
-                  ? "text-foreground border-b-2 border-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`pb-3 text-sm font-medium transition-colors ${activeTab === "notes"
+                ? "text-foreground border-b-2 border-foreground"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               Notes
             </button>
             <button
               onClick={() => setActiveTab("members")}
-              className={`pb-3 text-sm font-medium transition-colors ${
-                activeTab === "members"
-                  ? "text-foreground border-b-2 border-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`pb-3 text-sm font-medium transition-colors ${activeTab === "members"
+                ? "text-foreground border-b-2 border-foreground"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               Members
             </button>
             <button
               onClick={() => setActiveTab("activity")}
-              className={`pb-3 text-sm font-medium transition-colors ${
-                activeTab === "activity"
-                  ? "text-foreground border-b-2 border-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`pb-3 text-sm font-medium transition-colors ${activeTab === "activity"
+                ? "text-foreground border-b-2 border-foreground"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               Activity
             </button>
             {(team.isOwner || team.userPermissions?.canManageTeam) && (
               <button
                 onClick={() => setActiveTab("settings")}
-                className={`pb-3 text-sm font-medium transition-colors ${
-                  activeTab === "settings"
-                    ? "text-foreground border-b-2 border-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`pb-3 text-sm font-medium transition-colors ${activeTab === "settings"
+                  ? "text-foreground border-b-2 border-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Settings
               </button>
@@ -612,12 +608,12 @@ export default function TeamDashboard() {
               <div className="text-2xl font-semibold text-foreground mb-1">
                 {team.stats?.lastActivity
                   ? new Date(team.stats.lastActivity).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "short",
-                        day: "numeric",
-                      }
-                    )
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                    }
+                  )
                   : "None"}
               </div>
               <div className="text-xs text-muted-foreground">
@@ -662,13 +658,12 @@ export default function TeamDashboard() {
                     </p>
                   </div>
                   <div
-                    className={`px-3 py-1 rounded-lg text-xs font-medium flex-shrink-0 ${
-                      member.role === "owner"
-                        ? "bg-foreground text-background"
-                        : member.role === "editor"
+                    className={`px-3 py-1 rounded-lg text-xs font-medium flex-shrink-0 ${member.role === "owner"
+                      ? "bg-foreground text-background"
+                      : member.role === "editor"
                         ? "bg-muted text-muted-foreground"
                         : "bg-muted/50 text-muted-foreground"
-                    }`}
+                      }`}
                   >
                     {member.role}
                   </div>
@@ -750,77 +745,82 @@ export default function TeamDashboard() {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="border border-border/50 rounded-md p-5 bg-background">
-            <div className="mb-4">
-              <h3 className="font-medium text-foreground mb-1">
-                Quick Actions
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Create new notes and folders for your team
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button className="gap-2" onClick={handleCreateTeamNote}>
-                <Plus className="h-4 w-4" />
-                Create Team Note
-              </Button>
-              <Button
-                variant="outline"
-                className="gap-2"
-                onClick={() => setIsCreatingFolder(true)}
-              >
-                <FolderPlus className="h-4 w-4" />
-                Create Team Folder
-              </Button>
-            </div>
-
-            {/* Folder Creation Form */}
-            {isCreatingFolder && (
-              <div className="mt-6 p-4 border border-border/50 rounded-lg bg-muted/10">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground block mb-2">
-                      Folder Name
-                    </label>
-                    <Input
-                      placeholder="Enter folder name"
-                      value={newFolderName}
-                      onChange={(e) => setNewFolderName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleCreateFolder();
-                        } else if (e.key === "Escape") {
-                          setIsCreatingFolder(false);
-                          setNewFolderName("");
-                        }
-                      }}
-                      autoFocus
-                      className="w-full"
-                    />
+          {/* Quick Actions - Only show for non-viewers */}
+          {(team?.team?.userPermissions?.canCreateNotes || team?.team?.isOwner) &&
+            team?.team?.currentUser?.role !== 'viewer' && (
+              <div className="space-y-6">
+                <div className="border border-border/50 rounded-md p-5 bg-background">
+                  <div className="mb-4">
+                    <h3 className="font-medium text-foreground mb-1">
+                      Quick Actions
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Create new notes and folders for your team
+                    </p>
                   </div>
-                  <div className="flex gap-3">
-                    <Button size="sm" onClick={handleCreateFolder}>
-                      <Check className="h-4 w-4 mr-2" />
-                      Create Folder
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button className="gap-2" onClick={handleCreateTeamNote}>
+                      <Plus className="h-4 w-4" />
+                      Create Team Note
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setIsCreatingFolder(false);
-                        setNewFolderName("");
-                      }}
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => setIsCreatingFolder(true)}
                     >
-                      <X className="h-4 w-4 mr-2" />
-                      Cancel
+                      <FolderPlus className="h-4 w-4" />
+                      Create Team Folder
                     </Button>
                   </div>
                 </div>
+
+                {/* Folder Creation Form */}
+                {isCreatingFolder && (
+                  <div className="p-4 border border-border/50 rounded-lg bg-muted/10">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-foreground block mb-2">
+                          Folder Name
+                        </label>
+                        <Input
+                          placeholder="Enter folder name"
+                          value={newFolderName}
+                          onChange={(e) => setNewFolderName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleCreateFolder();
+                            } else if (e.key === "Escape") {
+                              setIsCreatingFolder(false);
+                              setNewFolderName("");
+                            }
+                          }}
+                          autoFocus
+                          className="w-full"
+                        />
+                      </div>
+                      <div className="flex gap-3">
+                        <Button size="sm" onClick={handleCreateFolder}>
+                          <Check className="h-4 w-4 mr-2" />
+                          Create Folder
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setIsCreatingFolder(false);
+                            setNewFolderName("");
+                          }}
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-          </div>
         </TabsContent>
 
         {/* Members Tab */}
@@ -907,13 +907,13 @@ export default function TeamDashboard() {
                         Joined{" "}
                         {member.joinedAt
                           ? new Date(member.joinedAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )
                           : "Recently"}
                       </p>
                     </div>
@@ -924,16 +924,15 @@ export default function TeamDashboard() {
                         member.role === "owner"
                           ? "default"
                           : member.role === "editor"
-                          ? "secondary"
-                          : "outline"
+                            ? "secondary"
+                            : "outline"
                       }
-                      className={`text-xs ${
-                        member.role === "owner"
-                          ? "bg-foreground text-background"
-                          : member.role === "editor"
+                      className={`text-xs ${member.role === "owner"
+                        ? "bg-foreground text-background"
+                        : member.role === "editor"
                           ? "bg-primary/10 text-primary border-primary/20"
                           : "bg-muted/50 text-muted-foreground border-border"
-                      }`}
+                        }`}
                     >
                       {member.role}
                     </Badge>
@@ -1083,17 +1082,19 @@ export default function TeamDashboard() {
         {/* Settings Tab */}
         {(team.isOwner || team.userPermissions?.canManageTeam) && (
           <TabsContent value="settings" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Team Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TeamSettings team={team} onTeamUpdate={fetchTeamData} />
-              </CardContent>
-            </Card>
+            <ScrollArea className="h-[calc(100vh-290px)]">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Team Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TeamSettings team={team} onTeamUpdate={fetchTeamData} />
+                </CardContent>
+              </Card>
+            </ScrollArea>
           </TabsContent>
         )}
       </Tabs>

@@ -251,10 +251,13 @@ export default function AllTeamFoldersPage() {
                 {teamFolders.length === 1 ? "folder" : "folders"}
               </p>
             </div>
-            <Button onClick={() => setIsCreatingFolder(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Create Team Folder
-            </Button>
+            {(team?.team?.userPermissions?.canCreateNotes || team?.team?.isOwner) && 
+             team?.team?.currentUser?.role !== 'viewer' && (
+              <Button onClick={() => setIsCreatingFolder(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Create Team Folder
+              </Button>
+            )}
           </div>
         </div>
 
@@ -317,10 +320,12 @@ export default function AllTeamFoldersPage() {
             <p className="text-sm text-muted-foreground text-center mb-6 max-w-sm">
               Create your first folder to organize your team notes
             </p>
-            <Button onClick={() => setIsCreatingFolder(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Create Folder
-            </Button>
+            {(team?.team?.userPermissions?.canCreateNotes || team?.team?.isOwner) && (
+              <Button onClick={() => setIsCreatingFolder(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Create Folder
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

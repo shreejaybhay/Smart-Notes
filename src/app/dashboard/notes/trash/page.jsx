@@ -3,13 +3,11 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useNotes } from "@/contexts/NotesContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
@@ -25,116 +23,35 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
+
 import {
   Trash2,
   Calendar,
   Folder,
   MoreHorizontal,
   RotateCcw,
-  Trash,
+  Search,
+  FileText,
+  ChevronDown,
   AlertTriangle,
-  RefreshCw,
-  CheckSquare,
-  Square,
   Clock,
   FileX,
   Undo2,
 } from "lucide-react";
-import { toast } from "sonner";
 import Link from "next/link";
 
-export default function TrashPage() {
+export default function TrashNotesPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { triggerRefresh } = useNotes();
-  const [deletedNotes, setDeletedNotes] = useState([]);
+  const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
-  const [permanentDeleteDialogOpen, setPermanentDeleteDialogOpen] =
-    useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
 
-  // Bulk actions state
-  const [selectedNotes, setSelectedNotes] = useState(new Set());
-  const [emptyTrashDialogOpen, setEmptyTrashDialogOpen] = useState(false);
-  const [bulkActionDialogOpen, setBulkActionDialogOpen] = useState(false);
-  const [bulkActionType, setBulkActionType] = useState(null); // 'restore' or 'delete'
-
-  useEffect(() => {
-    // Load deleted notes with initial loader
-    loadDeletedNotes(true);
-  }, [session]);
-
-  // Utility functions
-  const getDaysUntilDeletion = (deletedAt) => {
-    const deletedDate = new Date(deletedAt);
-    const expiryDate = new Date(
-      deletedDate.getTime() + 30 * 24 * 60 * 60 * 1000
-    ); // 30 days
-    const now = new Date();
-    const daysLeft = Math.ceil((expiryDate - now) / (24 * 60 * 60 * 1000));
-    return Math.max(0, daysLeft);
-  };
-
-  const getDeletionProgress = (deletedAt) => {
-    const deletedDate = new Date(deletedAt);
-    const expiryDate = new Date(
-      deletedDate.getTime() + 30 * 24 * 60 * 60 * 1000
-    );
-    const now = new Date();
-    const totalTime = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
-    const timeElapsed = now - deletedDate;
-    return Math.min(100, Math.max(0, (timeElapsed / totalTime) * 100));
-  };
-
-  const formatRelativeTime = (date) => {
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - new Date(date)) / 1000);
-
-    if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600)
-      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400)
-      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800)
-      return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
-  };
-
-  // Bulk selection functions
-  const toggleNoteSelection = (noteId) => {
-    const newSelected = new Set(selectedNotes);
-    if (newSelected.has(noteId)) {
-      newSelected.delete(noteId);
-    } else {
-      newSelected.add(noteId);
-    }
-    setSelectedNotes(newSelected);
-  };
-
-  const selectAllNotes = () => {
-    if (selectedNotes.size === deletedNotes.length) {
-      setSelectedNotes(new Set());
-    } else {
-      setSelectedNotes(new Set(deletedNotes.map((note) => note._id)));
-    }
-  };
-
-  const clearSelection = () => {
-    setSelectedNotes(new Set());
-  };
-
+  // Fetch deleted notes from API
   const loadDeletedNotes = async (showLoader = false) => {
     if (!session) return;
 
@@ -152,213 +69,222 @@ export default function TrashPage() {
       }
 
       const data = await response.json();
-      setDeletedNotes(data.notes || []);
+      setNotes(data.notes || []);
     } catch (error) {
-      console.error("Failed to load deleted notes:", error);
-      if (showLoader) toast.error("Failed to load deleted notes");
+      console.error("Error fetching deleted notes:", error);
+      setNotes([]);
     } finally {
       if (showLoader) setIsLoading(false);
       setIsInitialLoad(false);
     }
   };
 
-  // Show restore dialog
-  const handleRestoreNote = (note) => {
-    setSelectedNote(note);
-    setRestoreDialogOpen(true);
-  };
+  useEffect(() => {
+    loadDeletedNotes(true);
+  }, [session]);
 
-  // Confirm restore
-  const confirmRestoreNote = async () => {
-    if (!selectedNote) return;
+  // Real-time updates: Refresh when window gains focus (without loader)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (!isInitialLoad) {
+        loadDeletedNotes(false);
+      }
+    };
 
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [isInitialLoad]);
+
+  // Real-time updates: Polling every 30 seconds (without loader)
+  useEffect(() => {
+    if (isInitialLoad) return;
+
+    const interval = setInterval(() => {
+      loadDeletedNotes(false);
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [isInitialLoad]);
+
+  // Real-time updates: Listen for storage events (without loader)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "notes-updated" && !isInitialLoad) {
+        loadDeletedNotes(false);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [isInitialLoad]);
+
+  // Real-time updates: Refresh when page becomes visible (without loader)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && !isInitialLoad) {
+        loadDeletedNotes(false);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isInitialLoad]);
+
+  const handleRestoreNote = async (noteId) => {
     try {
-      const response = await fetch(`/api/notes/${selectedNote._id}/restore`, {
-        method: "PUT",
+      // Update UI immediately for better UX
+      setNotes((prev) => prev.filter((note) => note._id !== noteId));
+
+      // Call API to restore note
+      const response = await fetch(`/api/notes/${noteId}/restore`, {
+        method: "POST",
       });
 
       if (!response.ok) {
         throw new Error("Failed to restore note");
       }
 
-      await loadDeletedNotes(); // Refresh the trash list
-      triggerRefresh(); // Refresh the sidebar to show restored note
-      setRestoreDialogOpen(false);
-      setSelectedNote(null);
-      toast.success("Note restored successfully", {
-        description: `"${
-          selectedNote.title || "Untitled Note"
-        }" has been moved back to your notes`,
-        duration: 4000,
-      });
+      // Trigger storage event to notify other tabs/pages
+      localStorage.setItem("notes-updated", Date.now().toString());
     } catch (error) {
-      toast.error("Failed to restore note");
       console.error("Failed to restore note:", error);
+      // Reload notes on error
+      loadDeletedNotes(false);
     }
   };
 
-  // Show permanent delete dialog
-  const handlePermanentDelete = (note) => {
-    setSelectedNote(note);
-    setPermanentDeleteDialogOpen(true);
-  };
-
-  // Confirm permanent delete
-  const confirmPermanentDelete = async () => {
-    if (!selectedNote) return;
-
+  const handlePermanentDelete = async (noteId) => {
     try {
-      const response = await fetch(
-        `/api/notes/${selectedNote._id}?permanent=true`,
-        {
-          method: "DELETE",
-        }
-      );
+      // Update UI immediately for better UX
+      setNotes((prev) => prev.filter((note) => note._id !== noteId));
+
+      // Call API to permanently delete note
+      const response = await fetch(`/api/notes/${noteId}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         throw new Error("Failed to permanently delete note");
       }
 
-      await loadDeletedNotes(); // Refresh the list
-      setPermanentDeleteDialogOpen(false);
-      setSelectedNote(null);
-      toast.success("Note permanently deleted");
+      // Trigger storage event to notify other tabs/pages
+      localStorage.setItem("notes-updated", Date.now().toString());
     } catch (error) {
-      toast.error("Failed to delete note permanently");
       console.error("Failed to permanently delete note:", error);
+      // Reload notes on error
+      loadDeletedNotes(false);
     }
   };
 
-  // Empty trash with confirmation dialog
-  const handleEmptyTrash = () => {
-    setEmptyTrashDialogOpen(true);
-  };
+  // Filter notes based on search query
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (note.content &&
+        note.content.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
-  const confirmEmptyTrash = async () => {
+  // Enhanced date formatting helper
+  const formatDate = (dateString) => {
+    if (!dateString) return "Unknown";
+
     try {
-      const response = await fetch("/api/notes/trash", {
-        method: "DELETE",
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInSeconds = Math.floor((now - date) / 1000);
+
+      if (diffInSeconds < 60) return "Just now";
+      if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+      }
+      if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+      }
+      if (diffInSeconds < 604800) {
+        const days = Math.floor(diffInSeconds / 86400);
+        return `${days} ${days === 1 ? "day" : "days"} ago`;
+      }
+      if (diffInSeconds < 2592000) {
+        const weeks = Math.floor(diffInSeconds / 604800);
+        return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+      }
+
+      // For older dates, show actual date
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to empty trash");
-      }
-
-      const data = await response.json();
-      await loadDeletedNotes();
-      setEmptyTrashDialogOpen(false);
-      toast.success(
-        `Trash emptied successfully. ${data.deletedCount} notes permanently deleted.`
-      );
     } catch (error) {
-      toast.error("Failed to empty trash");
-      console.error("Failed to empty trash:", error);
+      console.error('Date formatting error:', error);
+      return "Unknown";
     }
   };
 
-  // Bulk actions
-  const handleBulkAction = (actionType) => {
-    setBulkActionType(actionType);
-    setBulkActionDialogOpen(true);
+  // Calculate days until permanent deletion
+  const calculateDaysLeft = (deletedAt) => {
+    const deletedDate = new Date(deletedAt);
+    const expiryDate = new Date(deletedDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+    const now = new Date();
+    const daysLeft = Math.ceil((expiryDate - now) / (24 * 60 * 60 * 1000));
+    return Math.max(0, daysLeft);
   };
 
-  const confirmBulkAction = async () => {
-    if (selectedNotes.size === 0) return;
+  // Format content helper
+  const formatContent = (content) => {
+    if (!content) return "";
 
-    try {
-      const noteIds = Array.from(selectedNotes);
+    let cleanContent = content
+      .replace(/<[^>]*>/g, "") // Remove HTML tags
+      .replace(/\s+/g, " ") // Replace multiple spaces with single space
+      .replace(/\n+/g, " ") // Replace line breaks with spaces
+      .trim(); // Remove leading/trailing whitespace
 
-      if (bulkActionType === "restore") {
-        // Restore selected notes
-        await Promise.all(
-          noteIds.map((noteId) =>
-            fetch(`/api/notes/${noteId}/restore`, { method: "PUT" })
-          )
-        );
-        toast.success(`${noteIds.length} notes restored successfully`, {
-          description: `${noteIds.length} ${
-            noteIds.length === 1 ? "note has" : "notes have"
-          } been moved back to your notes`,
-          duration: 4000,
-        });
-      } else if (bulkActionType === "delete") {
-        // Permanently delete selected notes
-        await Promise.all(
-          noteIds.map((noteId) =>
-            fetch(`/api/notes/${noteId}?permanent=true`, { method: "DELETE" })
-          )
-        );
-        toast.success(`${noteIds.length} notes permanently deleted`, {
-          description: `${noteIds.length} ${
-            noteIds.length === 1 ? "note has" : "notes have"
-          } been permanently removed`,
-          duration: 4000,
-        });
-      }
+    // Add spaces before capital letters to separate words
+    cleanContent = cleanContent.replace(/([a-z])([A-Z])/g, "$1 $2");
 
-      await loadDeletedNotes();
-      triggerRefresh();
-      clearSelection();
-      setBulkActionDialogOpen(false);
-      setBulkActionType(null);
-    } catch (error) {
-      toast.error(`Failed to ${bulkActionType} notes`);
-      console.error(`Failed to ${bulkActionType} notes:`, error);
-    }
+    // Limit length and add proper spacing
+    return cleanContent.substring(0, 100);
   };
 
   if (isLoading && isInitialLoad) {
     return (
       <main className="max-w-7xl mx-auto p-6">
-        {/* Header Skeleton */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
-              <Trash2 className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">Trash</h1>
-              <Skeleton className="h-4 w-16 mt-1" />
-            </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="relative w-full sm:max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search deleted notes..."
+              value=""
+              className="pl-10 h-10"
+              disabled
+              readOnly
+            />
           </div>
-          <Skeleton className="h-9 w-20" />
+          <Skeleton className="h-10 w-24" />
         </div>
 
-        {/* Warning Banner Skeleton */}
-        <div className="bg-muted/30 border border-muted rounded-lg p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-80" />
-              <Skeleton className="h-3 w-64" />
-            </div>
-          </div>
-        </div>
-
-        {/* Notes Grid Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="p-4">
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="h-4 w-4" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                  <Skeleton className="h-5 w-20" />
+        {/* Compact loading skeleton grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <Card key={i} className="h-48">
+              <CardContent className="p-4 h-full flex flex-col">
+                <div className="flex items-start justify-between mb-3 h-4">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-3.5 w-3.5" />
                 </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
+                <div className="flex-1 mb-3 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-1/2" />
                 </div>
-                <div className="flex items-center justify-between pt-2">
-                  <Skeleton className="h-4 w-32" />
-                  <div className="flex gap-2">
-                    <Skeleton className="h-8 w-20" />
-                    <Skeleton className="h-8 w-8" />
-                  </div>
+                <div className="mt-auto pt-3 border-t border-border/30">
+                  <Skeleton className="h-3 w-24" />
                 </div>
-              </div>
+              </CardContent>
             </Card>
           ))}
         </div>
@@ -367,316 +293,313 @@ export default function TrashPage() {
   }
 
   return (
-    <>
-      {/* Contextual Action Bar - Clean and Elevated */}
-      {selectedNotes.size > 0 && (
-        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b shadow-lg px-6 py-4">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-sm font-semibold">
-                  {selectedNotes.size}{" "}
-                  {selectedNotes.size === 1 ? "note" : "notes"} selected
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearSelection}
-                className="h-8 px-3 text-xs"
-              >
-                Clear
-              </Button>
-            </div>
-
-            {/* Responsive Action Buttons */}
-            <div className="flex items-center gap-2">
-              {/* Desktop Actions */}
-              <div className="hidden sm:flex items-center gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => handleBulkAction("restore")}
-                  className="h-9 px-4"
-                >
-                  <Undo2 className="h-4 w-4 mr-2" />
-                  Restore{" "}
-                  {selectedNotes.size > 1 ? `(${selectedNotes.size})` : ""}
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleBulkAction("delete")}
-                  className="h-9 px-4"
-                >
-                  <Trash className="h-4 w-4 mr-2" />
-                  Delete{" "}
-                  {selectedNotes.size > 1 ? `(${selectedNotes.size})` : ""}
-                </Button>
-              </div>
-
-              {/* Mobile Dropdown */}
-              <div className="sm:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-9 px-3">
-                      Actions
-                      <MoreHorizontal className="h-4 w-4 ml-2" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem
-                      onClick={() => handleBulkAction("restore")}
-                    >
-                      <Undo2 className="h-4 w-4 mr-2" />
-                      Restore ({selectedNotes.size})
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => handleBulkAction("delete")}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash className="h-4 w-4 mr-2" />
-                      Delete ({selectedNotes.size})
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-6">
-        {/* Header Actions */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
-              <Trash2 className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">Trash</h1>
-              <p className="text-sm text-muted-foreground">
-                {deletedNotes.length}{" "}
-                {deletedNotes.length === 1 ? "note" : "notes"}
-              </p>
+    <div className="flex-1 flex flex-col h-full bg-background">
+      {/* Clean Minimal Header */}
+      <div className="border-b border-border/50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {/* Header Section - Title and Count */}
+          <div className="flex items-center gap-2 sm:gap-3 mb-6">
+            <Trash2 className="h-5 w-5 text-red-500" />
+            <h1 className="text-xl sm:text-2xl font-medium text-foreground">Trash</h1>
+            <div className="flex items-center">
+              <span className="px-2 sm:px-2.5 py-1 bg-muted/60 text-muted-foreground text-xs rounded-md font-normal min-w-[50px] sm:min-w-[60px] text-center">
+                {isLoading && isInitialLoad ? (
+                  <span className="inline-block w-6 sm:w-8 h-3 bg-muted-foreground/20 rounded animate-pulse"></span>
+                ) : (
+                  `${filteredNotes.length} ${filteredNotes.length === 1 ? "note" : "notes"}`
+                )}
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Search Bar - Full Width */}
+          <div className="relative w-full mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search deleted notes..."
+              className="pl-10 h-10 sm:h-11 bg-background border-border/60 rounded-lg shadow-sm focus:shadow-md focus:border-border transition-all duration-150 text-sm w-full"
+              disabled={false}
+            />
+          </div>
+
+          {/* Controls Row - All Notes Button and Filter Side by Side */}
+          <div className="flex items-center gap-3 sm:gap-4 mb-6">
+            {/* All Notes Button */}
             <Button
+              asChild
               variant="outline"
-              size="sm"
-              onClick={() => loadDeletedNotes(true)}
-              disabled={isLoading}
+              className="gap-2 border-border/60 hover:border-border hover:bg-muted/50 transition-all duration-150 rounded-lg px-3 sm:px-4 py-2 font-normal text-sm"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-              />
-              Refresh
-            </Button>
-          </div>
-        </div>
-
-        {deletedNotes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/50 mb-6">
-              <Trash2 className="h-10 w-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-semibold mb-3 text-foreground">
-              No deleted notes
-            </h3>
-            <p className="text-muted-foreground mb-8 text-center max-w-md leading-relaxed">
-              Deleted notes will appear here for 30 days before being
-              permanently removed. You can restore them anytime during this
-              period.
-            </p>
-            <Button asChild variant="outline" className="h-10 px-6">
-              <Link href="/dashboard">
-                <FileX className="h-4 w-4 mr-2" />
-                Browse Notes
+              <Link href="/dashboard/notes">
+                <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline">Browse All Notes</span>
+                <span className="sm:hidden">All Notes</span>
               </Link>
             </Button>
+
+            {/* Sort Filter */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-10 sm:h-11 px-3 sm:px-4 gap-2 border-border/60 hover:border-border hover:bg-muted/50 rounded-lg transition-all duration-150 font-normal"
+                >
+                  <Calendar className="h-4 w-4 text-muted-foreground/70" />
+                  <span className="text-sm">Recently deleted</span>
+                  <ChevronDown className="h-3 w-3 text-muted-foreground/50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-48 rounded-xl border-border/60 shadow-lg animate-in fade-in-0 zoom-in-95 duration-150"
+              >
+                <DropdownMenuItem className="gap-3 py-2.5 rounded-lg">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>Recently deleted</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-3 py-2.5 rounded-lg">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span>Title A-Z</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-3 py-2.5 rounded-lg">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>Days remaining</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        ) : (
-          <>
-            {/* Theme-Consistent Warning Banner */}
-            <div className="bg-muted/30 border border-border rounded-lg p-4 mb-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                  <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm text-foreground font-medium">
-                    Notes will be permanently deleted after 30 days
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Select notes to restore or delete them permanently
-                  </p>
+        </div>
+      </div>
+
+      {/* Notes Content - Mobile Responsive */}
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {filteredNotes.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="flex justify-center mb-8">
+                <div className="relative">
+                  <div className="flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-red-50 to-red-100 border border-red-200">
+                    <Trash2 className="h-12 w-12 text-red-500" />
+                  </div>
+                  {!searchQuery && (
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center border-2 border-background shadow-sm">
+                      <AlertTriangle className="h-4 w-4 text-orange-600" />
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
 
-            {/* Select All Control */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  checked={
-                    selectedNotes.size === deletedNotes.length &&
-                    deletedNotes.length > 0
-                  }
-                  onCheckedChange={selectAllNotes}
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                />
-                <span className="text-sm font-medium text-foreground">
-                  Select all {deletedNotes.length} notes
-                </span>
+              <h3 className="text-2xl font-bold mb-4 text-foreground">
+                {searchQuery
+                  ? "No matching deleted notes"
+                  : "🗑️ Trash is empty"}
+              </h3>
+
+              <p className="text-muted-foreground mb-8 max-w-lg mx-auto leading-relaxed text-base">
+                {searchQuery
+                  ? `No deleted notes match "${searchQuery}". Try adjusting your search terms or browse all your deleted notes.`
+                  : "Deleted notes will appear here and be automatically removed after 30 days. You can restore them anytime before then."}
+              </p>
+
+              <div className="flex items-center justify-center gap-4">
+                {searchQuery ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => setSearchQuery("")}
+                    className="gap-2 h-11 px-6"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Show All Deleted
+                  </Button>
+                ) : (
+                  <>
+                    <Button asChild className="gap-2 h-11 px-6">
+                      <Link href="/dashboard/notes">
+                        <FileText className="h-4 w-4" />
+                        Browse Notes
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="gap-2 h-11 px-6">
+                      <Link href="/dashboard/notes/starred">
+                        <FileX className="h-4 w-4" />
+                        View Starred
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
-
-              {selectedNotes.size === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Click checkboxes to select notes for bulk actions
-                </p>
-              )}
             </div>
-
-            {/* Responsive Grid Layout with Consistent Spacing */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr">
-              {deletedNotes.map((note) => {
-                const daysLeft = getDaysUntilDeletion(note.deletedAt);
-                const isSelected = selectedNotes.has(note._id);
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {filteredNotes.map((note) => {
+                const daysLeft = calculateDaysLeft(note.deletedAt);
+                const isExpiringSoon = daysLeft <= 7;
 
                 return (
                   <Card
                     key={note._id}
-                    className={`group h-64 transition-all duration-200 ${
-                      isSelected
-                        ? "ring-2 ring-primary shadow-md"
-                        : "hover:shadow-md hover:scale-[1.01]"
-                    }`}
+                    className="group cursor-pointer transition-all duration-200 hover:shadow-md border border-border bg-card hover:bg-card/80 rounded-lg overflow-hidden"
+                    onClick={() => router.push(`/dashboard/notes/${note._id}`)}
                   >
-                    <CardContent className="p-4 h-full flex flex-col">
-                      {/* Header Section - Fixed Height */}
-                      <div className="flex items-start justify-between mb-4 h-6">
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() =>
-                              toggleNoteSelection(note._id)
-                            }
-                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                          {note.folder && (
-                            <Badge variant="secondary" className="text-xs h-5">
-                              <Folder className="h-3 w-3 mr-1" />
+                    <CardContent className="p-5">
+                      {/* Top Header - Folder Badge and Actions */}
+                      <div className="flex items-start justify-between mb-4">
+                        {/* Folder Badge - Top Left */}
+                        <div className="flex-shrink-0">
+                          {note.folder ? (
+                            <Badge
+                              variant="secondary"
+                              className="text-xs h-6 px-3 bg-secondary text-secondary-foreground border-0 font-medium rounded-md"
+                            >
                               {note.folder}
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="text-xs h-6 px-3 bg-muted/50 text-muted-foreground border-border font-normal rounded-md"
+                            >
+                              No folder
                             </Badge>
                           )}
                         </div>
 
-                        {/* Theme-Consistent Days Left Badge */}
-                        <Badge
-                          variant={
-                            daysLeft <= 3
-                              ? "destructive"
-                              : daysLeft <= 7
-                              ? "secondary"
-                              : "outline"
-                          }
-                          className="text-xs h-5 font-medium"
-                        >
-                          {daysLeft === 0
-                            ? "Expires today"
-                            : `${daysLeft} days left`}
-                        </Badge>
+                        {/* Actions - Top Right with proper spacing */}
+                        <div className="flex items-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity duration-200">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedNote(note);
+                              setRestoreDialogOpen(true);
+                            }}
+                            className="h-8 w-8 p-0 hover:bg-muted rounded-md"
+                          >
+                            <RotateCcw className="h-4 w-4 text-green-600" />
+                          </Button>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => e.stopPropagation()}
+                                className="h-8 w-8 p-0 hover:bg-muted rounded-md"
+                              >
+                                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="w-48 rounded-xl border-border/60 shadow-lg animate-in fade-in-0 zoom-in-95 duration-150"
+                            >
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedNote(note);
+                                  setRestoreDialogOpen(true);
+                                }}
+                                className="gap-3 py-2.5 rounded-lg"
+                              >
+                                <RotateCcw className="h-4 w-4 text-green-600" />
+                                <span>Restore Note</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedNote(note);
+                                  setDeleteDialogOpen(true);
+                                }}
+                                className="gap-3 py-2.5 rounded-lg text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span>Delete Forever</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
 
-                      {/* Content Area - Flexible Height */}
-                      <div className="flex-1 mb-3">
-                        <h3 className="font-semibold text-sm mb-2 line-clamp-2 leading-tight">
-                          {note.title || "Untitled Note"}
+                      {/* Main Content Area */}
+                      <div className="space-y-4">
+                        {/* Title - Bold and Clear */}
+                        <h3 className="font-bold text-xl leading-tight text-foreground line-clamp-2 group-hover:text-foreground/90">
+                          {note.title || "Untitled"}
                         </h3>
-                        {note.content && (
-                          <p className="text-muted-foreground text-xs line-clamp-3 leading-relaxed">
-                            {note.content
-                              .replace(/<[^>]*>/g, "")
-                              .substring(0, 100)}
-                            {note.content.length > 100 ? "..." : ""}
-                          </p>
-                        )}
-                      </div>
 
-                      {/* Metadata */}
-                      <div className="mb-4">
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span>
-                            Deleted {formatRelativeTime(note.deletedAt)}
-                          </span>
+                        {/* Content Preview */}
+                        <div className="space-y-3">
+                          {note.content ? (
+                            <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
+                              {formatContent(note.content)}
+                            </p>
+                          ) : (
+                            <p className="text-muted-foreground text-sm italic leading-relaxed">
+                              No content...
+                            </p>
+                          )}
                         </div>
-                      </div>
 
-                      {/* Action Buttons - Hidden when bulk actions are active */}
-                      {selectedNotes.size === 0 && (
-                        <div className="mt-auto pt-3 border-t">
+                        {/* Deletion Warning */}
+                        <div className={`p-3 rounded-lg border ${isExpiringSoon
+                          ? "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800"
+                          : "bg-orange-50 border-orange-200 dark:bg-orange-950/20 dark:border-orange-800"
+                          }`}>
                           <div className="flex items-center gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleRestoreNote(note)}
-                              className="flex-1 h-8"
-                            >
-                              <Undo2 className="h-3 w-3 mr-2" />
-                              Restore
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handlePermanentDelete(note)}
-                              className="h-8 px-3"
-                            >
-                              <Trash className="h-3 w-3" />
-                            </Button>
+                            <Clock className={`h-3 w-3 ${isExpiringSoon ? "text-red-600" : "text-orange-600"
+                              }`} />
+                            <span className={`text-xs font-medium ${isExpiringSoon ? "text-red-700 dark:text-red-400" : "text-orange-700 dark:text-orange-400"
+                              }`}>
+                              {daysLeft === 0
+                                ? "Deletes today"
+                                : `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left`
+                              }
+                            </span>
                           </div>
                         </div>
-                      )}
 
-                      {/* Selection Indicator when bulk actions are active */}
-                      {selectedNotes.size > 0 && (
-                        <div className="mt-auto pt-3 border-t">
-                          <div className="flex items-center justify-center">
-                            <div
-                              className={`text-xs font-medium ${
-                                isSelected
-                                  ? "text-primary"
-                                  : "text-muted-foreground"
-                              }`}
-                            >
-                              {isSelected ? "Selected" : "Click to select"}
-                            </div>
+                        {/* Divider Line */}
+                        <div className="border-t border-border"></div>
+
+                        {/* Footer Metadata */}
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5" />
+                            <span className="font-medium">
+                              Deleted {formatDate(note.deletedAt)}
+                            </span>
                           </div>
+                          {note.content && (
+                            <span className="font-medium">
+                              {formatContent(note.content).split(" ").filter(word => word.trim()).length} words
+                            </span>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </CardContent>
                   </Card>
                 );
               })}
             </div>
-          </>
-        )}
+          )}
+        </div>
       </main>
 
       {/* Restore Dialog */}
       <Dialog open={restoreDialogOpen} onOpenChange={setRestoreDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Restore Note</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <RotateCcw className="h-5 w-5 text-green-600" />
+              Restore Note
+            </DialogTitle>
             <DialogDescription>
-              Are you sure you want to restore "
-              {selectedNote?.title || "Untitled Note"}"?
-              <span className="block mt-2 text-sm text-muted-foreground">
-                The note will be moved back to your active notes.
-              </span>
+              Are you sure you want to restore "{selectedNote?.title || "Untitled"}"?
+              It will be moved back to your notes.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -686,8 +609,17 @@ export default function TrashPage() {
             >
               Cancel
             </Button>
-            <Button onClick={confirmRestoreNote}>
-              <RotateCcw className="h-4 w-4 mr-2" />
+            <Button
+              onClick={() => {
+                if (selectedNote) {
+                  handleRestoreNote(selectedNote._id);
+                  setRestoreDialogOpen(false);
+                  setSelectedNote(null);
+                }
+              }}
+              className="gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
               Restore Note
             </Button>
           </DialogFooter>
@@ -695,147 +627,42 @@ export default function TrashPage() {
       </Dialog>
 
       {/* Permanent Delete Dialog */}
-      <Dialog
-        open={permanentDeleteDialogOpen}
-        onOpenChange={setPermanentDeleteDialogOpen}
-      >
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Permanently Delete Note
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Delete Forever
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to permanently delete "
-              {selectedNote?.title || "Untitled Note"}"?
-              <span className="block mt-2 text-sm text-destructive font-medium">
-                This action cannot be undone. The note will be completely
-                removed from the database.
-              </span>
+              Are you sure you want to permanently delete "{selectedNote?.title || "Untitled"}"?
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setPermanentDeleteDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmPermanentDelete}>
-              <Trash className="h-4 w-4 mr-2" />
-              Delete Permanently
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Empty Trash Confirmation Dialog */}
-      <Dialog
-        open={emptyTrashDialogOpen}
-        onOpenChange={setEmptyTrashDialogOpen}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Empty Trash
-            </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to permanently delete all{" "}
-              {deletedNotes.length} notes in trash?
-              <span className="block mt-2 text-sm text-destructive font-medium">
-                This action cannot be undone. All notes will be completely
-                removed from the database.
-              </span>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEmptyTrashDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmEmptyTrash}>
-              <Trash className="h-4 w-4 mr-2" />
-              Empty Trash ({deletedNotes.length} notes)
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Bulk Action Confirmation Dialog */}
-      <Dialog
-        open={bulkActionDialogOpen}
-        onOpenChange={setBulkActionDialogOpen}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {bulkActionType === "restore" ? (
-                <>
-                  <Undo2 className="h-5 w-5 text-green-600" />
-                  Restore Notes
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="h-5 w-5 text-destructive" />
-                  Delete Notes Permanently
-                </>
-              )}
-            </DialogTitle>
-            <DialogDescription>
-              {bulkActionType === "restore" ? (
-                <>
-                  Are you sure you want to restore {selectedNotes.size} selected
-                  notes?
-                  <span className="block mt-2 text-sm text-muted-foreground">
-                    The notes will be moved back to your active notes.
-                  </span>
-                </>
-              ) : (
-                <>
-                  Are you sure you want to permanently delete{" "}
-                  {selectedNotes.size} selected notes?
-                  <span className="block mt-2 text-sm text-destructive font-medium">
-                    This action cannot be undone. The notes will be completely
-                    removed from the database.
-                  </span>
-                </>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setBulkActionDialogOpen(false)}
+              onClick={() => setDeleteDialogOpen(false)}
             >
               Cancel
             </Button>
             <Button
-              variant={bulkActionType === "restore" ? "default" : "destructive"}
-              onClick={confirmBulkAction}
-              className={
-                bulkActionType === "restore"
-                  ? "bg-green-600 hover:bg-green-700"
-                  : ""
-              }
+              variant="destructive"
+              onClick={() => {
+                if (selectedNote) {
+                  handlePermanentDelete(selectedNote._id);
+                  setDeleteDialogOpen(false);
+                  setSelectedNote(null);
+                }
+              }}
+              className="gap-2"
             >
-              {bulkActionType === "restore" ? (
-                <>
-                  <Undo2 className="h-4 w-4 mr-2" />
-                  Restore {selectedNotes.size} Notes
-                </>
-              ) : (
-                <>
-                  <Trash className="h-4 w-4 mr-2" />
-                  Delete {selectedNotes.size} Notes
-                </>
-              )}
+              <Trash2 className="h-4 w-4" />
+              Delete Forever
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

@@ -102,7 +102,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.firstName = user.firstName;
@@ -115,7 +115,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (account?.provider === 'github') {
           token.githubId = user.githubId;
         }
+
+        // Fetch user's createdAt from database if not already in token
+        if (!token.createdAt && user.id) {
+          try {
+            await connectDB();
+            const dbUser = await User.findById(user.id).select('createdAt');
+            if (dbUser) {
+              token.createdAt = dbUser.createdAt;
+            }
+          } catch (error) {
+            console.error('Error fetching user createdAt:', error);
+          }
+        }
       }
+      
+      // Handle session updates
+      if (trigger === 'update' && session) {
+        if (session.firstName) token.firstName = session.firstName;
+        if (session.lastName) token.lastName = session.lastName;
+        if (session.name) token.name = session.name;
+        if (session.image) token.picture = session.image;
+      }
+      
       return token;
     },
     async session({ session, token }) {
@@ -123,9 +145,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id;
         session.user.firstName = token.firstName;
         session.user.lastName = token.lastName;
+        session.user.name = token.name || `${token.firstName || ''} ${token.lastName || ''}`.trim();
         session.user.emailVerified = token.emailVerified;
         session.user.googleId = token.googleId;
         session.user.githubId = token.githubId;
+        session.user.createdAt = token.createdAt;
+        if (token.picture) {
+          session.user.image = token.picture;
+        }
       }
       return session;
     },

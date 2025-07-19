@@ -127,50 +127,101 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // Check if user has edit access
-    let userTeamMember = null;
+    // Check if user has edit access using the same logic as permissions endpoint
+    let canEdit = false;
+    let teamRole = null;
+    let collaboratorRole = null;
 
-    // If this is a team note, get the user's team member info
-    if (note.isTeamNote && note.teamId) {
-      const team = await Team.findById(note.teamId);
-      if (team) {
-        userTeamMember = team.members.find(member => {
-          let memberUserId;
-          if (typeof member.userId === 'object' && member.userId._id) {
-            memberUserId = member.userId._id.toString();
-          } else if (typeof member.userId === 'object' && member.userId.toString) {
-            memberUserId = member.userId.toString();
-          } else {
-            memberUserId = member.userId;
-          }
-          return memberUserId === session.user.id && member.status === 'active';
-        });
+    // Check if user is the owner
+    if (note.userId.toString() === session.user.id) {
+      canEdit = true;
+    } else {
+      // Check BOTH collaborator and team permissions, then use the highest
+
+      // 1. Check if user is a direct collaborator
+      const collaborator = note.collaborators.find(
+        collab => collab.userId.toString() === session.user.id
+      );
+
+      if (collaborator) {
+        collaboratorRole = collaborator.permission; // 'viewer' or 'editor'
       }
+
+      // 2. Check team permissions if it's a team note
+      let userTeamMember = null;
+      if (note.isTeamNote && note.teamId) {
+        const team = await Team.findById(note.teamId);
+        if (team) {
+          userTeamMember = team.members.find(member => {
+            let memberUserId;
+            if (typeof member.userId === 'object' && member.userId._id) {
+              memberUserId = member.userId._id.toString();
+            } else if (typeof member.userId === 'object' && member.userId.toString) {
+              memberUserId = member.userId.toString();
+            } else {
+              memberUserId = member.userId;
+            }
+            return memberUserId === session.user.id && member.status === 'active';
+          });
+
+          if (userTeamMember) {
+            teamRole = userTeamMember.role;
+          }
+        }
+      }
+
+      // 3. Resolve permissions - HIGHEST PERMISSION WINS
+      const permissionLevels = {
+        'viewer': 1,
+        'editor': 2,
+        'admin': 3,
+        'owner': 4
+      };
+
+      let finalPermissionLevel = 0;
+
+      // Check collaborator permission level
+      if (collaboratorRole) {
+        const collabLevel = permissionLevels[collaboratorRole] || 1;
+        finalPermissionLevel = Math.max(finalPermissionLevel, collabLevel);
+      }
+
+      // Check team permission level
+      if (teamRole) {
+        const teamLevel = permissionLevels[teamRole] || 1;
+        finalPermissionLevel = Math.max(finalPermissionLevel, teamLevel);
+      }
+
+      // User can edit if they have editor level or above
+      canEdit = finalPermissionLevel >= 2;
+
+      console.log('Permission resolution for edit:', {
+        userId: session.user.id,
+        noteId: note._id,
+        collaboratorRole,
+        teamRole,
+        finalPermissionLevel,
+        canEdit
+      });
     }
 
-    // For team notes, check if user has edit permissions based on their team role
-    if (note.isTeamNote && userTeamMember) {
-      console.log('Team note edit check:', {
-        userId: session.user.id,
-        userRole: userTeamMember.role,
-        canEditNotes: userTeamMember.permissions.canEditNotes,
-        noteId: note._id
-      });
-
-      // Check team member permissions
-      if (!userTeamMember.permissions.canEditNotes) {
-        return NextResponse.json(
-          {
-            error: 'You do not have permission to edit this team note',
-            userRole: userTeamMember.role,
-            requiredPermission: 'canEditNotes'
-          },
-          { status: 403 }
-        );
-      }
-    } else if (!note.canUserAccess(session.user.id, 'editor', userTeamMember)) {
+    // Check if user has edit permissions
+    if (!canEdit) {
       return NextResponse.json(
-        { error: 'Access denied' },
+        {
+          error: 'You do not have permission to edit this note',
+          details: {
+            teamRole,
+            collaboratorRole,
+            message: teamRole && collaboratorRole
+              ? `Your team role (${teamRole}) and direct share (${collaboratorRole}) don't provide edit access`
+              : teamRole
+                ? `Your team role (${teamRole}) doesn't provide edit access`
+                : collaboratorRole
+                  ? `Your permission level (${collaboratorRole}) doesn't provide edit access`
+                  : 'No access permissions found'
+          }
+        },
         { status: 403 }
       );
     }
