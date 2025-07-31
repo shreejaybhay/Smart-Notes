@@ -71,7 +71,7 @@ export default function NoteFlowLanding() {
                 <Brain className="h-8 w-8 sm:h-9 sm:w-9 text-primary" />
               </div>
               <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                NoteFlow
+                Smart Notes
               </span>
             </div>
 
