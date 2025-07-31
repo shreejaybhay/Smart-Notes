@@ -13,6 +13,7 @@ import { SearchDialog } from "@/components/search-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Home, ChevronRight } from "lucide-react";
 import { NotesProvider, useNotes } from "@/contexts/NotesContext";
+import { ModeToggle } from "@/components/mode_toggle";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -129,6 +130,11 @@ function DashboardContent({ children }) {
                   ))}
                 </BreadcrumbList>
               </Breadcrumb>
+            </div>
+
+            {/* Right side - Theme Toggle */}
+            <div className="flex items-center gap-2">
+              <ModeToggle />
             </div>
           </div>
         </header>

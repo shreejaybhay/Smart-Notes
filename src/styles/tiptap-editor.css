@@ -7,6 +7,38 @@
   color: hsl(var(--foreground));
 }
 
+/* Ensure all text elements inherit proper color in dark mode */
+.tiptap-editor *,
+.tiptap-editor .ProseMirror *,
+.tiptap-editor .ProseMirror {
+  color: inherit;
+}
+
+/* Force text color for all elements in dark mode */
+.dark .tiptap-editor,
+.dark .tiptap-editor *,
+.dark .tiptap-editor .ProseMirror,
+.dark .tiptap-editor .ProseMirror * {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Specific overrides for elements that might have different colors */
+.dark .tiptap-editor .ProseMirror p,
+.dark .tiptap-editor .ProseMirror h1,
+.dark .tiptap-editor .ProseMirror h2,
+.dark .tiptap-editor .ProseMirror h3,
+.dark .tiptap-editor .ProseMirror h4,
+.dark .tiptap-editor .ProseMirror h5,
+.dark .tiptap-editor .ProseMirror h6,
+.dark .tiptap-editor .ProseMirror span,
+.dark .tiptap-editor .ProseMirror div,
+.dark .tiptap-editor .ProseMirror li,
+.dark .tiptap-editor .ProseMirror strong,
+.dark .tiptap-editor .ProseMirror em,
+.dark .tiptap-editor .ProseMirror u {
+  color: hsl(var(--foreground)) !important;
+}
+
 .tiptap-editor .ProseMirror {
   outline: none;
   padding: 0;
