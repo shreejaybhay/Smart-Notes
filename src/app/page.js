@@ -659,7 +659,7 @@ export default function NoteFlowLanding() {
               <CardContent className="p-8">
                 <Quote className="h-8 w-8 text-primary mb-4" />
                 <p className="text-muted-foreground mb-6 italic">
-                  &quot;As a content creator, I need to organize research and collaborate with my team. NoteFlow's folder system and real-time collaboration features are exactly what we needed.&quot;
+                  &quot;As a content creator, I need to organize research and collaborate with my team. NoteFlow&apos;s folder system and real-time collaboration features are exactly what we needed.&quot;
                 </p>
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4">
