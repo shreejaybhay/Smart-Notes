@@ -140,11 +140,7 @@ function DashboardContent({ children }) {
         </header>
 
         {/* Page Content - Takes remaining height */}
-<<<<<<< HEAD
-        <div className="flex-1 overflow-hidden">{children}</div>
-=======
         <div className="flex-1 overflow-hidden dashboard-content">{children}</div>
->>>>>>> main
       </SidebarInset>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </SidebarProvider>
