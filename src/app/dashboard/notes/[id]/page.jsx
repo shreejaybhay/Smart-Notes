@@ -498,7 +498,11 @@ function NotePageContent({ teamId }) {
 
   // Edit Mode - Show the full editor
   return (
+<<<<<<< HEAD
     <div className="h-full overflow-hidden">
+=======
+    <div className="h-full overflow-hidden dashboard-layout">
+>>>>>>> main
       <TiptapEditor
         content={note.content}
         onChange={handleContentChange}
