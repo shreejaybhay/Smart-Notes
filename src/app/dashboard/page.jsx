@@ -111,7 +111,7 @@ export default function DashboardHomePage() {
   ];
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-full flex flex-col overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="w-full max-w-md sm:max-w-lg lg:max-w-2xl space-y-8 sm:space-y-12">
