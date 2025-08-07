@@ -960,3 +960,132 @@
 .ProseMirror:focus {
   outline: none;
 }
+<<<<<<< HEAD
+=======
+/* SCROLLBAR FIX - Dashboard and Editor Layout Fixes */
+
+/* Ensure dashboard layout is properly constrained */
+.dashboard-layout {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Fix for the main dashboard content area */
+.dashboard-content {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Tiptap editor container fixes */
+.tiptap-editor-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Title container should not scroll */
+.tiptap-title-container {
+  flex-shrink: 0;
+  background: hsl(var(--background));
+}
+
+/* Toolbar should be fixed */
+.tiptap-toolbar-fixed {
+  flex-shrink: 0;
+  background: hsl(var(--background));
+  border-bottom: 1px solid hsl(var(--border));
+  z-index: 40;
+}
+
+/* Only the content area should scroll */
+.tiptap-content-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+/* Prevent horizontal scrolling in the editor */
+.tiptap-content-scrollable .ProseMirror {
+  overflow-x: hidden;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Ensure all content respects container width */
+.tiptap-content-scrollable .ProseMirror * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Fix for images and media */
+.tiptap-content-scrollable .ProseMirror img,
+.tiptap-content-scrollable .ProseMirror video,
+.tiptap-content-scrollable .ProseMirror iframe {
+  max-width: 100% !important;
+  height: auto;
+}
+
+/* Fix for tables */
+.tiptap-content-scrollable .ProseMirror table {
+  max-width: 100%;
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+
+/* Fix for code blocks */
+.tiptap-content-scrollable .ProseMirror pre {
+  overflow-x: auto;
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}/* HIDE 
+SCROLLBARS - Keep functionality but hide visual scrollbars */
+
+/* Hide scrollbar for the main content area */
+.tiptap-content-scrollable {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+.tiptap-content-scrollable::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
+}
+
+/* Hide scrollbar for editor container */
+.tiptap-editor-container {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+.tiptap-editor-container::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
+}
+
+/* Hide scrollbar for dashboard content */
+.dashboard-content {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+.dashboard-content::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
+}
+
+/* Universal scrollbar hiding for editor areas */
+.tiptap-editor .ProseMirror,
+.tiptap-editor-container,
+.tiptap-content-scrollable {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.tiptap-editor .ProseMirror::-webkit-scrollbar,
+.tiptap-editor-container::-webkit-scrollbar,
+.tiptap-content-scrollable::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}

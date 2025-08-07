@@ -16,7 +16,7 @@ import {
   BookOpen,
   Tag,
   Brain,
-  Plus
+  Plus,
 } from "lucide-react";
 
 export default function DashboardHomePage() {
@@ -45,8 +45,8 @@ export default function DashboardHomePage() {
         method: "POST",
         body: JSON.stringify({
           title: noteTitle.trim(),
-          content: ""
-        })
+          content: "",
+        }),
       });
 
       if (!response.ok) {
@@ -80,42 +80,43 @@ export default function DashboardHomePage() {
     {
       label: "All Notes",
       icon: FileText,
-      action: () => router.push("/dashboard/notes")
+      action: () => router.push("/dashboard/notes"),
     },
     {
       label: "Starred",
       icon: Star,
-      action: () => router.push("/dashboard/notes/starred")
+      action: () => router.push("/dashboard/notes/starred"),
     },
     {
       label: "Search",
       icon: Search,
       action: () => {
-        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
-      }
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "k", ctrlKey: true })
+        );
+      },
     },
     {
       label: "Templates",
       icon: BookOpen,
       action: () => {
         toast.info("Templates coming soon!");
-      }
+      },
     },
     {
       label: "Tags",
       icon: Tag,
       action: () => {
         toast.info("Tags feature coming soon!");
-      }
-    }
+      },
+    },
   ];
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-full flex flex-col overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="w-full max-w-md sm:max-w-lg lg:max-w-2xl space-y-8 sm:space-y-12">
-          
           {/* Header Section */}
           <div className="text-center space-y-4 sm:space-y-6">
             <div className="flex items-center justify-center gap-3 sm:gap-4">
@@ -124,7 +125,7 @@ export default function DashboardHomePage() {
                 SmartNotes
               </h1>
             </div>
-            
+
             <div className="space-y-2 sm:space-y-3">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-medium text-foreground">
                 {getGreeting()}, {firstName}! 👋
@@ -181,7 +182,7 @@ export default function DashboardHomePage() {
             <h3 className="text-base sm:text-lg font-medium text-center text-muted-foreground">
               Quick Actions
             </h3>
-            
+
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
               {quickActions.map((action, index) => (
                 <button
