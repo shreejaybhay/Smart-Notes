@@ -332,7 +332,7 @@ const emailTemplates = {
 export const sendVerificationEmail = async (email, name, token) => {
   try {
     const transporter = createTransporter();
-    const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${token}`;
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/verify-email?token=${token}`;
     const template = emailTemplates.verification(name, verificationUrl);
 
     const mailOptions = {
@@ -354,7 +354,7 @@ export const sendVerificationEmail = async (email, name, token) => {
 export const sendPasswordResetEmail = async (email, name, token) => {
   try {
     const transporter = createTransporter();
-    const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
     const template = emailTemplates.passwordReset(name, resetUrl);
 
     const mailOptions = {
