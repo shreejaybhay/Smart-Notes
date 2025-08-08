@@ -106,8 +106,12 @@ function LoginPageContent() {
       });
 
       if (result?.error) {
-        toast.error(result.error);
-      } else if (result?.ok) {
+        const code = result.error;
+        const message = code === "CredentialsSignin"
+          ? "Invalid email or password."
+          : "Unable to sign in. Please try again.";
+        toast.error(message);
+      } else if (result?.ok || result?.url) {
         toast.success("Welcome back!");
         router.push("/dashboard");
       }

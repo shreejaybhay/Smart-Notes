@@ -8,6 +8,30 @@ import User from '../models/User';
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, metadata) {
+      // Suppress noisy error logs for expected invalid-credentials cases
+      if (code === 'CredentialsSignin') {
+        return;
+      }
+      try {
+        console.error('[auth][error]', code, metadata);
+      } catch {}
+    },
+    warn(code, metadata) {
+      try {
+        console.warn('[auth][warn]', code, metadata);
+      } catch {}
+    },
+    debug(code, metadata) {
+      if (process.env.NODE_ENV === 'development') {
+        try {
+          console.debug('[auth][debug]', code, metadata);
+        } catch {}
+      }
+    }
+  },
+
   providers: [
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID,
@@ -49,7 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password are required');
+          return null;
         }
 
         try {
@@ -59,24 +83,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const user = await User.findOne({ email: credentials.email.toLowerCase() }).select('+password');
 
           if (!user) {
-            throw new Error('No user found with this email');
+            return null;
           }
 
           // Check if user has a password (not OAuth user)
           if (!user.password) {
-            throw new Error('Please sign in with your social account');
+            return null;
           }
 
           // Verify password
           const isPasswordValid = await user.comparePassword(credentials.password);
 
           if (!isPasswordValid) {
-            throw new Error('Invalid password');
+            return null;
           }
 
           // Check if email is verified
           if (!user.emailVerified) {
-            throw new Error('Please verify your email before signing in');
+            return null;
           }
 
           return {
@@ -89,7 +113,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             emailVerified: user.emailVerified
           };
         } catch (error) {
-          throw new Error(error.message || 'Authentication failed');
+          console.error('Credentials authorize error:', error);
+          return null;
         }
       }
     })
@@ -129,7 +154,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
         }
       }
-      
+
       // Handle session updates
       if (trigger === 'update' && session) {
         if (session.firstName) token.firstName = session.firstName;
@@ -137,7 +162,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (session.name) token.name = session.name;
         if (session.image) token.picture = session.image;
       }
-      
+
       return token;
     },
     async session({ session, token }) {
