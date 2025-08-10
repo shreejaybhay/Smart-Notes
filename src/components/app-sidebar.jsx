@@ -8,7 +8,6 @@ import { useNotes } from "@/contexts/NotesContext";
 import {
   Brain,
   FileText,
-  BookOpen,
   Search,
   Star,
   StarOff,
@@ -962,11 +961,6 @@ export function AppSidebar({ onSearchClick, onRefreshNotes, ...props }) {
         title: "All Notes",
         url: "/dashboard/notes",
         icon: FileText
-      },
-      {
-        title: "Study",
-        url: "/dashboard/study",
-        icon: BookOpen
       },
       {
         title: "Shared Notes",
